@@ -21,6 +21,9 @@ Générer la solution:
 Ouvrir la solution dans Visual Studio 2022:
 `$ .\build\rush-hour.sln`
 
+Exécuter le programme:
+`$ .\bin\Debug\Rush-hour.exe` 
+
 ------------------------------------------------------------------------
 
 Le but de ce projet est d'écrire un programme permettant de trouver une
