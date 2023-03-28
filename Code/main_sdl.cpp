@@ -1,5 +1,14 @@
+#if __linux__
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
+#elif _WIN32
+
 #include <SDL.h>
 #include <SDL_image.h>
+
+#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -54,7 +63,7 @@ std::vector<Node> buildGraph(std::vector<uint32_t>& final_sit_idx, const game_si
         if (node.gs.finalSituation())
             final_sit_idx.push_back(cindex) ;
 
-        for (size_t i = 0; i < node.gs.numOfMouvements(); ++i) {
+        for (int i = 0; i < node.gs.numOfMouvements(); ++i) {
             game_situation* buff_gs = node.gs.moveVehicle(i) ;
             Node new_node = Node {node.height + 1, *buff_gs, { cindex }} ;
             uint32_t nei_idx ;

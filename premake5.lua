@@ -1,6 +1,7 @@
 workspace "Rush-hour"
   configurations { "Debug", "Release" }
   architecture "x86_64"
+  location "build"
 
   project "Rush-hour"
     kind "ConsoleApp"
@@ -10,8 +11,8 @@ workspace "Rush-hour"
 
     files { "Code/**.cpp", "Code/**.h" }
     includedirs { "Code" }
-    
-    includedirs {"include"}
+
+    includedirs { "include" }
     libdirs { "lib/x64" }
     links { "SDL2.lib", "SDL2main.lib", "SDL2_image.lib" }
     links { "SDL2", "SDL2main", "SDL2_image"}
@@ -27,4 +28,3 @@ workspace "Rush-hour"
     configuration { "windows", "vs*" }
       location "build"
       debugdir "."
-        

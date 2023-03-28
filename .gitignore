@@ -2,4 +2,3 @@ obj/
 build/
 .vs/
 .vscode/
-*.sln
