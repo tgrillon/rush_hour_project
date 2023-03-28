@@ -9,6 +9,8 @@ OBJ_SDL = ./obj/main_sdl.o ./obj/game_situation.o
 EXE_SDL = ./bin/rush_hour_sdl 
 EXE_TEST = ./bin/rush_hour_test
 
+ALL_EXE = EXE_SDL EXE_TEST
+
 all: $(EXE_SDL) $(EXE_TEST)
 
 $(EXE_SDL): $(OBJ_SDL)
@@ -27,4 +29,4 @@ $(EXE_TEST): $(OBJ_TEST)
 	$(CC) $(FLAGS) -c $< -o $@
 
 clean:
-	rm -rf ./bin/* ./obj/*
+	rm -rf $(ALL_EXE) ./obj/*
