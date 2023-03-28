@@ -1,0 +1,8 @@
+!bin/Debug/SDL2_image.dll
+!bin/Debug/SDL2.dll
+bin/*
+obj/
+build/
+.vs/
+.vscode/
+*.sln
