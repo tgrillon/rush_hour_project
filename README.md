@@ -1,5 +1,28 @@
 # Projet Rush Hour
 
+## Compilation
+
+- Sous linux
+
+Générer les exécutables dans le répertoire `bin/`:
+`$ make`
+
+Version graphique:
+`$ ./bin/rush_hour_sdl`
+
+Version sans affichage (pour les tests de fuite de mémoire avec Valgrind):
+`$ ./bin/rush_hour_test`
+
+- Sous Windows (Visual Studio 2022):
+
+Générer la solution:
+`$ .\premake5.exe vs2022`
+
+Ouvrir la solution dans Visual Studio 2022:
+`$ .\build\rush-hour.sln`
+
+------------------------------------------------------------------------
+
 Le but de ce projet est d'écrire un programme permettant de trouver une
 solution au jeu *Rush Hour*.
 
