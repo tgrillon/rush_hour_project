@@ -1,6 +1,6 @@
 !bin/Debug/SDL2_image.dll
 !bin/Debug/SDL2.dll
-bin/*
+bin/
 obj/
 build/
 .vs/
