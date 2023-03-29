@@ -57,7 +57,7 @@ void game_situation::updateMovableVehicles() {
     if (!m_movable_vehicles.empty())
         m_movable_vehicles.clear() ;
 
-    for (size_t i = 0; i < m_vehicles.size(); ++i) {
+    for (int i = 0; i < m_vehicles.size(); ++i) {
         vehicle v = m_vehicles[i] ;
         int d = v.length ;
         if (v.isHorizontal()) {
@@ -84,7 +84,7 @@ void game_situation::updateMovableVehicles() {
     }
 }
 
-game_situation* game_situation::moveVehicle(size_t i) const {
+game_situation game_situation::moveVehicle(size_t i) const {
     movement m = m_movable_vehicles[i] ;
     int index = m.index ;
     int direction = (m.direction < 0 ) ? -1 : 1 ;
@@ -129,10 +129,10 @@ game_situation* game_situation::moveVehicle(size_t i) const {
     std::vector<vehicle> new_vehicle_array = m_vehicles ;
 
     new_vehicle_array[index] = v ;
-    return new game_situation(new_vehicle_array, m_grid_width, m_grid_height, m_exit_position) ;
+    return game_situation(new_vehicle_array, m_grid_width, m_grid_height, m_exit_position) ;
 }
 
-game_situation* game_situation::moveVehicleRand() const {
+game_situation game_situation::moveVehicleRand() const {
     return moveVehicle(rand() % m_movable_vehicles.size()) ;
 }
 

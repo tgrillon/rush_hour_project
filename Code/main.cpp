@@ -35,8 +35,8 @@ std::vector<Node> buildGraph(const game_situation& init_situation) {
 
        Node node = graph[cindex] ;
        for (uint32_t i = 0; i < node.gs.numOfMouvements(); ++i) {
-           game_situation* buff_gs = node.gs.moveVehicle(i) ;
-           Node new_node = Node {node.height + 1, *buff_gs, { cindex }} ;
+           game_situation buff_gs = node.gs.moveVehicle(i) ;
+           Node new_node = Node {node.height + 1, buff_gs, { cindex }} ;
            int nei_idx ;
            if ((nei_idx = alreadyExists(cindex, new_node, graph)) == -1) {
                queue.push(graph.size()) ; // on ajoute le noeud dans la file 
