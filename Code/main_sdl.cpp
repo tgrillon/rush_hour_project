@@ -64,8 +64,8 @@ std::vector<Node> buildGraph(std::vector<uint32_t>& final_sit_idx, const game_si
             final_sit_idx.push_back(cindex) ;
 
         for (int i = 0; i < node.gs.numOfMouvements(); ++i) {
-            game_situation* buff_gs = node.gs.moveVehicle(i) ;
-            Node new_node = Node {node.height + 1, *buff_gs, { cindex }} ;
+            game_situation buff_gs = node.gs.moveVehicle(i) ;
+            Node new_node = Node {node.height + 1, buff_gs, { cindex }} ;
             uint32_t nei_idx ;
             if ((nei_idx = alreadyExists(cindex, new_node, heights, graph)) == -1) {
                 queue.push(graph.size()) ; // on ajoute le noeud dans la file 
