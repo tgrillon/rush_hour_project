@@ -6,14 +6,9 @@
 
 #include "game_situation.h"
 
-struct Noeud {
-    game_situation gs ;
-    Noeud* previous ;
-} ;
-
 struct Node {
    uint32_t height ;
-   game_situation gs ;
+   game_situation gs;
    std::vector<size_t> neighbors ;
 } ;
 
@@ -26,46 +21,6 @@ uint32_t alreadyExists(uint32_t cindex, Node& node, std::vector<Node>& graph) {
    }
 
    return -1 ;
-}
-
-int alreadyExists(int cindex, Noeud& node, std::vector<Noeud>& graph) {
-   for (int i = 0; i < graph.size(); ++i) {
-       if (node.gs.sameSituation(graph[i].gs)) {
-           return i ;
-       }
-   }
-
-   return -1 ;
-}
-
-bool findPath(const game_situation& init, std::vector<Noeud>& graph) {
-    graph.push_back({init, nullptr}) ;
-
-    std::queue<size_t> queue ;
-    queue.push(0) ;
-
-    while (!queue.empty()) {
-        int cindex = queue.front() ;
-
-        Noeud node = graph[cindex] ; 
-        
-        for (int i = 0; i < node.gs.numOfMouvements(); ++i) {
-            game_situation buff_gs = node.gs.moveVehicle(i) ;
-            Noeud new_node = Noeud { buff_gs, &node } ;
-            if (new_node.gs.finalSituation()) {
-                return true ;
-            }
-            int nei_idx ;
-            if ((nei_idx = alreadyExists(cindex, new_node, graph)) == -1) {
-                queue.push(graph.size()) ;
-                graph.push_back(new_node) ;
-            }
-        }
-
-        queue.pop() ;
-    }
-
-    return false ;
 }
 
 std::vector<Node> buildGraph(const game_situation& init_situation) {
@@ -181,20 +136,13 @@ int main(int argc, char** argv) {
 
     game_situation init_situation("./data/puzzle.txt") ;
 
-    std::vector<Noeud> graph ;
+    std::vector<Node> graph = buildGraph(init_situation) ;
 
-    if (findPath(init_situation, graph)) {
-        Noeud* node = &graph[graph.size() - 1] ;
+    std::vector<Dijkstra_Node> sp = shortest_paths_dijkstra(graph) ;
 
-        int n = 1 ;
-        std::cout << graph.size() << std::endl ;
-        while ((node = node->previous) != nullptr) {
-            ++n ;
-            std::cout << n << " " ;
-        }
-        std::cout << std::endl ;
-
-        std::cout << "nombre de coup pour resoudre le puzzle : " << n << std::endl ;
+    for (Dijkstra_Node dn : sp) {
+        std::cout << " idx : " << dn.idx << ", d : " << dn.d << ", p : " << dn.p << std::endl ;
     }
+   
     return EXIT_SUCCESS;
 }
