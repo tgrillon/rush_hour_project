@@ -9,7 +9,7 @@ OBJ_SDL = ./obj/main_sdl.o ./obj/game_situation.o
 EXE_SDL = ./bin/rush_hour_sdl 
 EXE_TEST = ./bin/rush_hour_test
 
-ALL_EXE = EXE_SDL EXE_TEST
+ALL_EXE = $(EXE_SDL) $(EXE_TEST)
 
 all: $(EXE_SDL) $(EXE_TEST)
 
