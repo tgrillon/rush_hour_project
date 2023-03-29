@@ -41,8 +41,8 @@ public:
     bool sameSituation(const game_situation& gs) const ;
     bool finalSituation() const ;
 
-    game_situation* moveVehicle(size_t i) const;
-    game_situation* moveVehicleRand() const;
+    game_situation moveVehicle(size_t i) const;
+    game_situation moveVehicleRand() const;
 
     inline int getGridHeight() const { return m_grid_height ; }
     inline int getGridWidth() const { return m_grid_width ; }
