@@ -157,10 +157,10 @@ void game_situation::readFromFile(const std::string& input_filepath) {
         }
     } else {
         std::cout << "Error: No such file at '" << input_filepath << "' !" << std::endl ;
+        exit(-1) ;
     }
 
     f_reading.close() ;
-    exit(-1) ;
 }
 
 void game_situation::writeToFile(const std::string& output_filepath) const {
