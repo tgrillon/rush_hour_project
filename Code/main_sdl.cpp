@@ -140,8 +140,6 @@ int main(int argc, char** argv)
     if (argc > 1)
         filepath = argv[1] ;
 
-    srand (time(NULL));
-
     // initialisation de SDL2
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {

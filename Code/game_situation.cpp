@@ -19,9 +19,11 @@ game_situation::~game_situation() {
 }
 
 bool game_situation::finalSituation() const { 
-        return m_vehicles[0].position.row == m_exit_position.row &&
-            m_vehicles[0].position.column + m_vehicles[0].length - 1 == m_exit_position.column ; }
+    return m_vehicles[0].position.row == m_exit_position.row &&
+        m_vehicles[0].position.column + m_vehicles[0].length - 1 == m_exit_position.column ; 
+}
 
+// linear complexity 
 bool game_situation::sameSituation(const game_situation& gs) const {
     std::vector<vehicle> vehicles = gs.getVehicles() ;
     for (int i = 0; i < m_vehicles.size(); ++i) {
@@ -36,6 +38,7 @@ bool game_situation::sameSituation(const game_situation& gs) const {
     return true ;
 }
 
+// linear complexity 
 void game_situation::updateBoxCondition() {
     if (!m_box_condition.empty())
         m_box_condition.clear() ;
@@ -53,6 +56,7 @@ void game_situation::updateBoxCondition() {
     }
 }
 
+// linear complexity
 void game_situation::updateMovableVehicles() {
     if (!m_movable_vehicles.empty())
         m_movable_vehicles.clear() ;
@@ -84,6 +88,7 @@ void game_situation::updateMovableVehicles() {
     }
 }
 
+// Theta(1) complexity 
 game_situation game_situation::moveVehicle(size_t i) const {
     movement m = m_movable_vehicles[i] ;
     int index = m.index ;

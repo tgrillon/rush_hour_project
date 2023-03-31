@@ -12,11 +12,13 @@ struct Node {
 } ;
 
 bool alreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
-   for (int i = 0; i < graph.size(); ++i) {
-       if (node.gs.sameSituation(graph[i].gs)) {
-           return true ;
-       }
-   }
+   
+    // Complexity : Theta(n) (with n the number of elements in graph) 
+    for (int i = 0; i < graph.size(); ++i) {
+        if (node.gs.sameSituation(graph[i].gs)) {
+            return true ;
+        }
+    }
 
    return false ;
 }
@@ -28,6 +30,7 @@ bool findPath(const game_situation& init, std::vector<Node>& graph) {
     queue.push(0) ;
 
     bool yes = false ;
+
     while (queue.size() > 0) {
         int cindex = queue.front() ;
         Node node = graph[cindex] ; 
