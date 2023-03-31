@@ -137,62 +137,64 @@ game_situation game_situation::moveVehicleRand() const {
 }
 
 void game_situation::readFromFile(const std::string& input_filepath) {
-    std::ifstream f_en_lecture(input_filepath.c_str()) ;
+    std::ifstream f_reading(input_filepath.c_str()) ;
 
-    if (f_en_lecture) {
-        f_en_lecture >> m_grid_width ;
-        f_en_lecture >> m_grid_height ;
+    if (f_reading) {
+        f_reading >> m_grid_width ;
+        f_reading >> m_grid_height ;
 
-        f_en_lecture >> m_exit_position.row ;
-        f_en_lecture >> m_exit_position.column ;
+        f_reading >> m_exit_position.row ;
+        f_reading >> m_exit_position.column ;
 
         int v;
-        while (f_en_lecture >> v) {
-            vehicle vehicle_a_ajouter ;
-            vehicle_a_ajouter.position.row = v ;
-            f_en_lecture >> vehicle_a_ajouter.position.column ;
-            f_en_lecture >> vehicle_a_ajouter.length ;
-            f_en_lecture >> vehicle_a_ajouter.t_hor_f_vert ;
-            m_vehicles.push_back(vehicle_a_ajouter) ;
+        while (f_reading >> v) {
+            vehicle new_vehicle ;
+            new_vehicle.position.row = v ;
+            f_reading >> new_vehicle.position.column ;
+            f_reading >> new_vehicle.length ;
+            f_reading >> new_vehicle.t_hor_f_vert ;
+            m_vehicles.push_back(new_vehicle) ;
         }
     } else {
-        std::cout << "Erreur à l'ouverture du fichier '" << input_filepath << "' !" << std::endl ;
+        std::cout << "Error: No such file at '" << input_filepath << "' !" << std::endl ;
     }
 
-    f_en_lecture.close() ;
+    f_reading.close() ;
+    exit(-1) ;
 }
 
 void game_situation::writeToFile(const std::string& output_filepath) const {
-    std::ofstream f_en_ecriture(output_filepath.c_str()) ;
+    std::ofstream f_writing(output_filepath.c_str()) ;
 
-    if (f_en_ecriture) {
-        f_en_ecriture << m_grid_width ;
-        f_en_ecriture << ' ' ;
-        f_en_ecriture << m_grid_height ;
-        f_en_ecriture << '\n' ;
+    if (f_writing) {
+        f_writing << m_grid_width ;
+        f_writing << ' ' ;
+        f_writing << m_grid_height ;
+        f_writing << '\n' ;
 
-        f_en_ecriture << m_exit_position.row ;
-        f_en_ecriture << ' ' ;
-        f_en_ecriture << m_exit_position.column ;
+        f_writing << m_exit_position.row ;
+        f_writing << ' ' ;
+        f_writing << m_exit_position.column ;
 
         for (vehicle v : m_vehicles) {
-            f_en_ecriture << '\n' ;
+            f_writing << '\n' ;
             
-            f_en_ecriture << v.position.row ;
-            f_en_ecriture << ' ' ;
+            f_writing << v.position.row ;
+            f_writing << ' ' ;
 
-            f_en_ecriture << v.position.column ;
-            f_en_ecriture << ' ' ;
+            f_writing << v.position.column ;
+            f_writing << ' ' ;
 
-            f_en_ecriture << v.length ;
-            f_en_ecriture << ' ' ;
+            f_writing << v.length ;
+            f_writing << ' ' ;
 
-            f_en_ecriture << v.t_hor_f_vert ;
+            f_writing << v.t_hor_f_vert ;
         }
     } else {
-        std::cout << "Erreur lors de l'ouverture en écriture du fichier: '" << output_filepath << "'" << std::endl ;
+        std::cout << "Error: No such file at '" << output_filepath << "'" << std::endl ;
+        exit(-1) ;
     }
 
-    f_en_ecriture.close() ;
+    f_writing.close() ;
 }
 
