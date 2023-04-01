@@ -28,137 +28,48 @@ const int BOX_SIZE = 64 ;
 const uint32_t MAX_HEIGHT = 100 ;
 
 struct Node {
-    int height ;
     game_situation gs;
-    std::vector<uint32_t> neighbors ;
+    int id ;
 };
 
-uint32_t alreadyExists(uint32_t cindex, Node& node, const std::vector<std::vector<uint32_t>>& heights, std::vector<Node>& graph) {
-    for (uint32_t i = 0; i < graph.size(); ++i) {
-        if (node.gs.sameSituation(graph[i].gs)) {
-            graph[i].neighbors.push_back(cindex) ;
-            return i ;
-        }
-    }
+bool alreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
+   for (int i = 0; i < graph.size(); ++i) {
+       if (node.gs.sameSituation(graph[i].gs)) {
+           return true ;
+       }
+   }
 
-    return -1 ;
+   return false ;
 }
 
-std::vector<Node> buildGraph(std::vector<uint32_t>& final_sit_idx, const game_situation& init_situation) {
-    std::vector<std::vector<uint32_t>> heights ;
-    heights.assign(MAX_HEIGHT, {}) ;
-    heights[0].push_back(0) ;
-
-    std::vector<Node> graph ;
-    graph.push_back(Node {0, init_situation, { 0 }}) ;
-
-    std::queue<uint32_t> queue ; 
+bool findPath(const game_situation& init, std::vector<Node>& graph) {
+    graph.push_back({ init, -1 }) ;
+    
+    std::queue<int> queue ;
     queue.push(0) ;
 
-    while (!queue.empty()) {
-        uint32_t cindex = queue.front() ;
-
-        Node node = graph[cindex] ;
-
-        if (node.gs.finalSituation())
-            final_sit_idx.push_back(cindex) ;
-
+    bool yes = false ;
+    while (queue.size() > 0) {
+        int cindex = queue.front() ;
+        Node node = graph[cindex] ; 
+        
         for (int i = 0; i < node.gs.numOfMouvements(); ++i) {
-            game_situation* buff_gs = node.gs.moveVehicle(i) ;
-            Node new_node = Node {node.height + 1, *buff_gs, { cindex }} ;
-            uint32_t nei_idx ;
-            if ((nei_idx = alreadyExists(cindex, new_node, heights, graph)) == -1) {
-                queue.push(graph.size()) ; // on ajoute le noeud dans la file 
-                node.neighbors.push_back(uint32_t(graph.size())) ; // voisin du noeud qui l'a généré 
-                heights[new_node.height].push_back(graph.size()) ; // hauteur = hauteur du noeud père + 1
-                graph.push_back(new_node) ; // on ajoute le noeud dans le graph
-            } else {
-                node.neighbors.push_back(nei_idx) ;
+            game_situation buff_gs = node.gs.moveVehicle(i) ;
+            Node new_node = Node { buff_gs, cindex } ;
+            if (new_node.gs.finalSituation()) {
+                graph.push_back(new_node) ;
+                return true ;
+            }
+            if (!alreadyExists(cindex, new_node, graph)) {
+                queue.push(graph.size()) ;
+                graph.push_back(new_node) ;
             }
         }
 
-        queue.pop() ;   
-    }
-
-    return graph ;
-}
-
-struct Dijkstra_Node {
-    uint32_t idx ; 
-    uint32_t d ;
-    int p ;
-} ;
-
-const uint32_t INF = 1569325055 ;
-
-struct compareLess {
-    bool operator()(const Dijkstra_Node& n1, const Dijkstra_Node& n2) { return n1.d > n2.d ; }
-} ;
-
-bool isInQueue(uint32_t idx, const std::priority_queue<Dijkstra_Node, std::vector<Dijkstra_Node>, compareLess>& p_queue) {
-    std::priority_queue<Dijkstra_Node, std::vector<Dijkstra_Node>, compareLess> buff = p_queue ;
-
-    while(!buff.empty()) {
-        if (buff.top().idx == idx)
-            return true ;
-        buff.pop() ;
+        queue.pop() ;
     }
 
     return false ;
-}
-
-void updateQueueElt(const Dijkstra_Node& elt, std::priority_queue<Dijkstra_Node, std::vector<Dijkstra_Node>, compareLess>& p_queue) {
-    assert(isInQueue(elt.idx, p_queue)) ;
-
-    std::priority_queue<Dijkstra_Node, std::vector<Dijkstra_Node>, compareLess> new_queue ;
-
-    while (!p_queue.empty()) {
-        if (p_queue.top().idx == elt.idx)
-            new_queue.push(elt) ;
-        else 
-            new_queue.push(p_queue.top()) ;
-        p_queue.pop() ;
-    }
-
-    while (!new_queue.empty()) {
-        p_queue.push(new_queue.top()) ;
-        new_queue.pop() ;
-    }
-}
-
-std::vector<Dijkstra_Node> shortest_paths_dijkstra(const std::vector<Node>& graph) {
-    std::vector<Dijkstra_Node> shortest_paths ;
-    shortest_paths.assign(graph.size(), Dijkstra_Node { 0, INF, -1 }) ;
-
-    for (int i = 1; i < graph.size(); ++i) 
-        shortest_paths[i].idx = i ;
-
-    int start = 0 ; 
-
-    // file a priorité minimale 
-    std::priority_queue<Dijkstra_Node, std::vector<Dijkstra_Node>, compareLess> s; 
-
-    s.push({ 0, 0, start }) ;
-    shortest_paths[start].d = 0 ;
-    shortest_paths[start].p = 0 ;
-
-    while (!s.empty()) {
-        Dijkstra_Node v = s.top() ;
-        s.pop() ;
-        
-        for (uint32_t iw : graph[v.idx].neighbors) {
-            uint32_t d_vw = std::abs(graph[iw].height - graph[v.idx].height) ;
-            if (shortest_paths[iw].d > v.d + d_vw) {
-                shortest_paths[iw].d = v.d + d_vw ;
-                shortest_paths[iw].p = v.idx ;
-                if (!isInQueue(shortest_paths[iw].idx, s)) 
-                    s.push(shortest_paths[iw]) ;
-                else updateQueueElt(shortest_paths[iw], s) ;
-            }
-        }
-    }
-
-    return shortest_paths ; 
 }
 
 void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& renderer, const std::vector<vehicle>& vehicles, const box& exit_position, int grid_width, int grid_height) {
@@ -221,9 +132,13 @@ void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& ren
     }
 }
 
-int main(int argc, char* argv[])
+std::string filepath = "./data/puzzle.txt" ;
+
+int main(int argc, char** argv)
 {
-    srand (time(NULL));
+
+    if (argc > 1)
+        filepath = argv[1] ;
 
     // initialisation de SDL2
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -236,30 +151,20 @@ int main(int argc, char* argv[])
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
 
-    game_situation init_situation("./data/puzzle.txt") ;
-
-    std::vector<uint32_t> final_sit_idx ;
+    game_situation init_situation(filepath) ;
 
     std::vector<Node> graph ;
-    graph = buildGraph(final_sit_idx, init_situation) ;
+    findPath(init_situation, graph) ;
 
-    std::vector<Dijkstra_Node> shortest_paths = shortest_paths_dijkstra(graph) ;
-
-    uint32_t idx_best_path = final_sit_idx[0] ;
-    for (size_t i = 1; i < final_sit_idx.size(); ++i) {
-        if (shortest_paths[final_sit_idx[i]].d < shortest_paths[idx_best_path].d)
-            idx_best_path = final_sit_idx[i] ;
+    Node node = graph[graph.size() - 1] ;
+    std::vector<game_situation> path ; 
+    while (node.id != -1) {
+        path.push_back(node.gs) ;
+        node = graph[node.id] ;
     }
 
-    std::vector<Node> best_solution ;
+    path.push_back(node.gs) ;
 
-    uint32_t current_index = idx_best_path ;
-    while(current_index > 0) {
-        best_solution.push_back(graph[current_index]) ;
-        current_index = shortest_paths[current_index].p ;
-    } 
-    best_solution.push_back(graph[0]) ;
-    
     int grid_width = init_situation.getGridWidth() ;
     int grid_height = init_situation.getGridHeight() ;
 
@@ -315,7 +220,7 @@ int main(int argc, char* argv[])
 
     textures.push_back(SDL_CreateTextureFromSurface(renderer, output)) ; // 12
 
-    uint32_t iter = best_solution.size() - 1 ;
+    uint32_t iter = path.size() - 1 ;
 
     SDL_Event events ;
     bool isOpen = true ;
@@ -331,9 +236,9 @@ int main(int argc, char* argv[])
                 else if (events.key.keysym.scancode == SDL_SCANCODE_R)
                     iter = 0 ;
                 else if (events.key.keysym.scancode == SDL_SCANCODE_B) { 
-                    if (iter < best_solution.size() - 1)
+                    if (iter < path.size() - 1)
                         ++iter ;
-                    else iter = best_solution.size() - 1 ;
+                    else iter = path.size() - 1 ;
                 } else if (events.key.keysym.scancode == SDL_SCANCODE_N) {
                     if (iter > 0)
                         --iter ;
@@ -351,14 +256,15 @@ int main(int argc, char* argv[])
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) ;
         SDL_RenderDrawRect(renderer, &grille);
 
-        drawGameState(textures, renderer, best_solution[iter].gs.getVehicles(), init_situation.getExitPosition(), grid_width, grid_height) ;
+        drawGameState(textures, renderer, path[iter].getVehicles(), init_situation.getExitPosition(), grid_width, grid_height) ;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         if (iter > 0) iter--;
         else {
-            iter = best_solution.size() - 1;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            iter = path.size() - 1;
         }
+        if (iter == path.size() - 2)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         SDL_RenderPresent(renderer);
     }
