@@ -48,7 +48,6 @@ bool findPath(const game_situation& init, std::vector<Node>& graph) {
     std::queue<int> queue ;
     queue.push(0) ;
 
-    bool yes = false ;
     while (queue.size() > 0) {
         int cindex = queue.front() ;
         Node node = graph[cindex] ; 
