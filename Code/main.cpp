@@ -3,6 +3,7 @@
 #include <queue>
 #include <cassert>
 #include <map>
+#include <cstdlib>
 
 #include "game_situation.h"
 
