@@ -21,8 +21,11 @@ Générer la solution:
 Ouvrir la solution dans Visual Studio 2022:
 `$ .\build\rush-hour.sln`
 
-Exécuter le programme:
-`$ .\bin\Debug\Rush-hour.exe` 
+Exécuter le programme (version test, c-à-d pas d'affichage graphique):
+`$ .\bin\Debug\Rush-hour-test.exe` 
+
+Exécuter le programme (version graphique):
+`$ .\bin\Debug\Rush-hour-sdl.exe` 
 
 ------------------------------------------------------------------------
 
