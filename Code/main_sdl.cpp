@@ -16,7 +16,9 @@
 #include <cassert>
 #include <map>
 #include <thread>
-
+#include <random>
+#include <utility>
+#include <stack>
 
 #include "game_situation.h"
 
@@ -131,7 +133,7 @@ void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& ren
     }
 }
 
-std::string filepath = "./data/puzzle.txt" ;
+std::string filepath = "./data/files/puzzle.txt" ;
 
 int main(int argc, char** argv)
 {
@@ -186,21 +188,21 @@ int main(int argc, char** argv)
         grid_height * BOX_SIZE
     } ;
 
-    SDL_Surface* side_l = IMG_Load("./data/side_l.png") ;
-    SDL_Surface* side_r = IMG_Load("./data/side_r.png") ;
-    SDL_Surface* side_h = IMG_Load("./data/side_h.png") ;
-    SDL_Surface* side_b = IMG_Load("./data/side_b.png") ;
-    SDL_Surface* side_l_r = IMG_Load("./data/side_l_r.png") ;
-    SDL_Surface* side_r_r = IMG_Load("./data/side_r_r.png") ;
-    SDL_Surface* side_h_r = IMG_Load("./data/side_h_r.png") ;
-    SDL_Surface* side_b_r = IMG_Load("./data/side_b_r.png") ;
+    SDL_Surface* side_l = IMG_Load("./data/tiles/side_l.png") ;
+    SDL_Surface* side_r = IMG_Load("./data/tiles/side_r.png") ;
+    SDL_Surface* side_h = IMG_Load("./data/tiles/side_h.png") ;
+    SDL_Surface* side_b = IMG_Load("./data/tiles/side_b.png") ;
+    SDL_Surface* side_l_r = IMG_Load("./data/tiles/side_l_r.png") ;
+    SDL_Surface* side_r_r = IMG_Load("./data/tiles/side_r_r.png") ;
+    SDL_Surface* side_h_r = IMG_Load("./data/tiles/side_h_r.png") ;
+    SDL_Surface* side_b_r = IMG_Load("./data/tiles/side_b_r.png") ;
 
-    SDL_Surface* mid_v = IMG_Load("./data/mid_v.png") ;
-    SDL_Surface* mid_h = IMG_Load("./data/mid_h.png") ;
-    SDL_Surface* mid_v_r = IMG_Load("./data/mid_v_r.png") ;
-    SDL_Surface* mid_h_r = IMG_Load("./data/mid_h_r.png") ;
+    SDL_Surface* mid_v = IMG_Load("./data/tiles/mid_v.png") ;
+    SDL_Surface* mid_h = IMG_Load("./data/tiles/mid_h.png") ;
+    SDL_Surface* mid_v_r = IMG_Load("./data/tiles/mid_v_r.png") ;
+    SDL_Surface* mid_h_r = IMG_Load("./data/tiles/mid_h_r.png") ;
 
-    SDL_Surface* output = IMG_Load("./data/output.png") ;
+    SDL_Surface* exit = IMG_Load("./data/tiles/exit.png") ;
 
     std::vector<SDL_Texture*> textures ; 
     textures.push_back(SDL_CreateTextureFromSurface(renderer, side_l)) ; // 0
@@ -217,7 +219,7 @@ int main(int argc, char** argv)
     textures.push_back(SDL_CreateTextureFromSurface(renderer, mid_v_r)) ; // 10
     textures.push_back(SDL_CreateTextureFromSurface(renderer, mid_h_r)) ; // 11
 
-    textures.push_back(SDL_CreateTextureFromSurface(renderer, output)) ; // 12
+    textures.push_back(SDL_CreateTextureFromSurface(renderer, exit)) ; // 12
 
     uint32_t iter = path.size() - 1 ;
 
@@ -257,13 +259,13 @@ int main(int argc, char** argv)
 
         drawGameState(textures, renderer, path[iter].getVehicles(), init_situation.getExitPosition(), grid_width, grid_height) ;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        if (iter > 0) iter--;
-        else {
-            iter = path.size() - 1;
-        }
-        if (iter == path.size() - 2)
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // if (iter > 0) iter--;
+        // else {
+        //     iter = path.size() - 1;
+        // }
+        // if (iter == path.size() - 2)
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         SDL_RenderPresent(renderer);
     }

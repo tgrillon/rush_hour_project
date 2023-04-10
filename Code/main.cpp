@@ -4,6 +4,9 @@
 #include <cassert>
 #include <map>
 #include <cstdlib>
+#include <random>
+#include <utility>
+#include <stack>
 
 #include "game_situation.h"
 
@@ -11,6 +14,8 @@ struct Node {
     game_situation gs ;
     int id ;
 } ;
+
+///CECI EST LA BRANCHE MASTER ET UNIQUEMENT MASTER 
 
 bool alreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
    
@@ -53,7 +58,7 @@ bool findPath(const game_situation& init, std::vector<Node>& graph) {
     return false ;
 }
 
-std::string filepath = "./data/puzzle.txt" ;
+std::string filepath = "./data/files/puzzle.txt" ;
 
 int main(int argc, char** argv) {
 

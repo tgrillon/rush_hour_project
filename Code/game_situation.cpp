@@ -15,9 +15,6 @@ game_situation::game_situation(const std::vector<vehicle> vehicles, int width, i
     updateMovableVehicles() ;
 }
 
-game_situation::~game_situation() {
-}
-
 bool game_situation::finalSituation() const { 
     return m_vehicles[0].position.row == m_exit_position.row &&
         m_vehicles[0].position.column + m_vehicles[0].length - 1 == m_exit_position.column ; 

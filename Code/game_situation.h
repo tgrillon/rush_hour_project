@@ -30,13 +30,7 @@ class game_situation {
 public:
     game_situation(const std::string& input_filepath) ;
     game_situation(const std::vector<vehicle> vehicles, int width, int height, const box& exit_position) ;
-    ~game_situation() ;
-
-    void readFromFile(const std::string& input_filepath) ;
-    void writeToFile(const std::string& output_filepath) const ;
-
-    void updateBoxCondition() ;
-    void updateMovableVehicles() ;
+    ~game_situation() = default ;
 
     bool sameSituation(const game_situation& gs) const ;
     bool finalSituation() const ;
@@ -50,6 +44,12 @@ public:
     inline std::vector<vehicle> getVehicles() const { return m_vehicles ; }
     inline size_t numOfMouvements() const { return m_movable_vehicles.size() ; }
 
+private:
+    void writeToFile(const std::string& output_filepath) const ;
+    void readFromFile(const std::string& input_filepath) ;  
+    
+    void updateBoxCondition() ;
+    void updateMovableVehicles() ;
 private:
     std::vector<vehicle> m_vehicles ;
     std::vector<bool> m_box_condition ;
