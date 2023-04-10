@@ -56,7 +56,7 @@ bool findPath(const game_situation& init, std::vector<Node>& graph) {
     return false ;
 }
 
-const int size_grid = 4 ;
+const int size_grid = 3 ;
 
 void generate(std::string& output_file) {
 
@@ -68,7 +68,7 @@ void generate(std::string& output_file) {
         // all available boxes  
         for (int h = 0; h < size_grid; ++h) {
             for (int w = 0; w < size_grid; ++w) {
-                couples[h * size_grid + w] = { w, h } ;
+                couples[h * size_grid + w] = { h, w } ;
             }  
         }
 
@@ -90,9 +90,9 @@ void generate(std::string& output_file) {
         f_writing << size_grid - 1 ;
         
         int count = 0 ;
-        while (count < size_grid * size_grid / 3) {
+        while (count < size_grid * size_grid / 3 && !couples.empty()) {
             std::random_device rng ;
-            std::uniform_int_distribution<int> u(0, couples.size()) ;
+            std::uniform_int_distribution<int> u(0, couples.size() - 1) ;
             std::uniform_int_distribution<int> ul(2, 3) ;
             std::uniform_int_distribution<int> ud(0, 1) ;
 
@@ -100,23 +100,15 @@ void generate(std::string& output_file) {
             int direction = ud(rng) ;
             int key = u(rng) ;
 
-            if (couples[key].first + direction * (length - 1) < size_grid && 
-            couples[key].second + (1 - direction) * (length - 1) < size_grid) {
+            if (couples[key].first + (1 - direction) * (length - 1) < size_grid &&
+            couples[key].second + direction * (length - 1) < size_grid) {
                 std::pair<int, int> pair = couples[key] ;
                 // std::cout << "w: " << (pair.first + direction * (length - 1)) << " h: " 
                 //     << (pair.second + (1 - direction) * (length - 1)) << std::endl ;
                 std::stack<std::pair<int, int>> s ;
-                std::cout << "(" << pair.first << ", " << pair.second << ")" << std::endl ;
+                std::cout << "(" << pair.first << ", " << pair.second << ", " << length << ", " << direction << " )" << std::endl ;
                 couples.erase(couples.begin()+key) ;
 
-                std::cout << "[ ";
-                for (const auto& p : couples ) {
-                    std::cout << "(" << p.first << ", " << p.second << "), " << " " ;
-                }
-                std::cout << " ]\n" ;
-
-                std::cin.get() ;
-                
                 int n = 1 ;
                 int i = 0 ;
                 while (i < couples.size()) {
@@ -124,26 +116,36 @@ void generate(std::string& output_file) {
                     if (n == length) break ;
                     std::pair<int, int> p = couples[i] ;
                     for (int l = 1; l < length; ++l) {
-                        int wl = pair.first + direction * l ;
-                        int hl = pair.second + (1 - direction) * l ;
-                        if (wl == p.first && hl == p.second) {
+                        int hl = pair.first + (1 - direction) * l ;
+                        int wl = pair.second + direction * l ;
+                        if (wl == p.second && hl == p.first) {
                             std::pair<int, int> buff = couples[i] ;
                             s.push(buff) ;
-                            // std::cout << "(" << p.first << ", " << p.second << ")" << std::endl ;
+                            std::cout << "erased : (" << p.first << ", " << p.second << ")" << std::endl ;
                             couples.erase(couples.begin()+i) ;
                             n++ ;
                         }   
                     }
-                    ++i ;
+                    i++ ;
                 }
 
+                std::cout << "n=" << n << "[";
+                for (const auto& p : couples ) {
+                    std::cout << "(" << p.first << ", " << p.second << "), " << " " ;
+                }
+                std::cout << " ]\n" ;
+
+                std::cin.get() ;
+
                 if (n != length) {
-                    // couples.push_back(pair) ;
-                    // for (int i = 0; i < s.size(); ++i) {
-                    //     couples.push_back(s.top()) ;
-                    //     s.pop() ;
-                    // }
+                    std::cout << "Annulation!" << std::endl ;
+                    couples.push_back(pair) ;
+                    for (int i = 0; i < s.size(); ++i) {
+                        couples.push_back(s.top()) ;
+                        s.pop() ;
+                    }
                 } else {
+                    std::cout << "Ajout!" << std::endl;
                     int column = couples[key].first ;
                     int row = couples[key].second ;
 
@@ -151,10 +153,10 @@ void generate(std::string& output_file) {
 
                     f_writing << '\n' ;
                     
-                    f_writing << column ;
+                    f_writing << row ;
                     f_writing << ' ' ;
 
-                    f_writing << row ;
+                    f_writing << column ;
                     f_writing << ' ' ;
 
                     f_writing << length ;
@@ -177,25 +179,29 @@ std::string filepath = "./data/files/puzzle.txt" ;
 
 int main(int argc, char** argv) {
 
-    if (argc > 1)
-        filepath = argv[1] ;
+   // if (argc > 1)
+   //     filepath = argv[1] ;
 
-    game_situation init_situation(filepath) ;
+   // game_situation init_situation(filepath) ;
 
-    std::vector<Node> graph ;
+   // std::vector<Node> graph ;
 
-    if (findPath(init_situation, graph)) {
-        Node node = graph[graph.size() - 1] ;
+   // if (findPath(init_situation, graph)) {
+   //     Node node = graph[graph.size() - 1] ;
 
-        int n = 1 ;
-        while (node.id != -1) {
-            // std::cout << node->previous << std::endl ;
-            n++ ;
-            node = graph[node.id] ;
-        }
+   //     int n = 1 ;
+   //     while (node.id != -1) {
+   //         // std::cout << node->previous << std::endl ;
+   //         n++ ;
+   //         node = graph[node.id] ;
+   //     }
 
-        std::cout << "nombre de coup pour resoudre le puzzle: " << std::endl ;
-   }
+   //     std::cout << "nombre de coup pour resoudre le puzzle: " << std::endl ;
+   //}
+
+    std::string outputfile = "./data/files/generated_gs.txt";
+
+    generate(outputfile) ;
 
     return 0;
 } 
