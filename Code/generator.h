@@ -6,6 +6,17 @@
 #include <iostream>
 #include <stack>
 
+void addLine(std::ostream& o_stream, int row, int col, int len, int dir) {
+    o_stream << '\n';
+    o_stream << row;
+    o_stream << ' ';
+    o_stream << col;
+    o_stream << ' ';
+    o_stream << len;
+    o_stream << ' ';
+    o_stream << dir;
+}
+
 namespace Generator {
     const int size_grid = 6;
 
@@ -20,10 +31,8 @@ namespace Generator {
             std::uniform_int_distribution<int> ur(0, size_grid - 1);
             std::uniform_int_distribution<int> uc(0, size_grid - 3);
 
-            int exit_row = ur(rng);
+            int exit_row = 2;
             int exit_column = uc(rng);
-
-            std::cout << exit_row << " " << exit_column << std::endl;
 
             // dimension
             f_writing << size_grid;
@@ -36,18 +45,7 @@ namespace Generator {
             f_writing << ' ';
             f_writing << size_grid - 1;
 
-            f_writing << '\n';
-
-            f_writing << exit_row;
-            f_writing << ' ';
-
-            f_writing << exit_column;
-            f_writing << ' ';
-
-            f_writing << 2;
-            f_writing << ' ';
-
-            f_writing << 1;
+            addLine(f_writing, exit_row, exit_column, 2, 1);
 
             // all available boxes  
             for (int h = 0; h < size_grid; ++h) {
@@ -82,16 +80,12 @@ namespace Generator {
 
                 if (pair.first + (1 - direction) * (length - 1) < size_grid &&
                     pair.second + direction * (length - 1) < size_grid) {
-                    // std::cout << "w: " << (pair.first + direction * (length - 1)) << " h: " 
-                    //     << (pair.second + (1 - direction) * (length - 1)) << std::endl ;
                     std::stack<std::pair<int, int>> s;
-                    //std::cout << "(" << pair.first << ", " << pair.second << ", " << length << ", " << direction << " )" << std::endl;
                     pairs.erase(pairs.begin() + key);
 
                     int n = 1;
                     int i = 0;
                     while (i < pairs.size()) {
-                        // std::cout << i << " " << pairs.size() << std::endl ;
                         if (n == length) break;
                         std::pair<int, int> p = pairs[i];
                         for (int l = 1; l < length; ++l) {
@@ -100,7 +94,6 @@ namespace Generator {
                             if (wl == p.second && hl == p.first) {
                                 std::pair<int, int> buff = pairs[i];
                                 s.push(buff);
-                                //std::cout << "erased : (" << p.first << ", " << p.second << ")" << std::endl;
                                 pairs.erase(pairs.begin() + i);
                                 n++;
                             }
@@ -108,16 +101,7 @@ namespace Generator {
                         i++;
                     }
 
-                    /*std::cout << "n=" << n << "[";
-                    for (const auto& p : pairs) {
-                        std::cout << "(" << p.first << ", " << p.second << "), " << " ";
-                    }
-                    std::cout << " ]\n";
-
-                    std::cin.get();*/
-
                     if (n != length) {
-                        //std::cout << "Annulation!" << std::endl;
                         pairs.push_back(pair);
                         for (int i = 0; i < s.size(); ++i) {
                             pairs.push_back(s.top());
@@ -125,26 +109,9 @@ namespace Generator {
                         }
                     }
                     else {
-                        //std::cout << "Ajout!" << std::endl;
-                        int row = pair.first;
-                        int column = pair.second;
-
                         count++;
-
-                        f_writing << '\n';
-
-                        f_writing << row;
-                        f_writing << ' ';
-
-                        f_writing << column;
-                        f_writing << ' ';
-
-                        f_writing << length;
-                        f_writing << ' ';
-
-                        f_writing << direction;
+                        addLine(f_writing, pair.first, pair.second, length, direction);
                     }
-
                 }
             }
         }
