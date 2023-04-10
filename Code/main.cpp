@@ -15,8 +15,6 @@ struct Node {
     int id ;
 } ;
 
-///CECI EST LA BRANCHE MASTER ET UNIQUEMENT MASTER 
-
 bool alreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
    
     // Complexity : Theta(n) (with n the number of elements in graph) 
