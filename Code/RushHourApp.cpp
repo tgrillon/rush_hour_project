@@ -16,7 +16,6 @@
 #include <cassert>
 #include <map>
 
-#include "GameSituation.h"
 #include "Generator.h"
 
 int WINDOW_WIDTH = 800 ;

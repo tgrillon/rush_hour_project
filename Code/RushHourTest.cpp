@@ -5,7 +5,6 @@
 #include <cstdlib>
 
 #include "Generator.h"
-#include "Graph.h"
 
 std::string filepath = "./data/files/puzzle.txt" ;
 
