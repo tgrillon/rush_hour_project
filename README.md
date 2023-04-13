@@ -8,10 +8,10 @@ Générer les exécutables dans le répertoire `bin/`:
 `$ make`
 
 Version graphique:
-`$ ./bin/rush_hour_sdl`
+`$ ./bin/RushHourApp`
 
 Version sans affichage (pour les tests de fuite de mémoire avec Valgrind):
-`$ ./bin/rush_hour_test`
+`$ ./bin/RushHourTest`
 
 - Sous Windows (Visual Studio 2022):
 
