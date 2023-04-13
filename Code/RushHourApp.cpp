@@ -16,66 +16,18 @@
 #include <cassert>
 #include <map>
 
-#include "game_situation.h"
-#include "generator.h"
+#include "GameSituation.h"
+#include "Generator.h"
 
 int WINDOW_WIDTH = 800 ;
 int WINDOW_HEIGHT = 800 ;
 
 const int BOX_SIZE = 64 ;
 
-const uint32_t MAX_HEIGHT = 100 ;
-
-struct Node {
-    game_situation gs;
-    int id ;
-};
-
-bool alreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
-   for (int i = 0; i < graph.size(); ++i) {
-       if (node.gs.sameSituation(graph[i].gs)) {
-           return true ;
-       }
-   }
-
-   return false ;
-}
-
-bool findPath(const game_situation& init, std::vector<Node>& graph) {
-    graph.push_back({ init, -1 }) ;
+void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& renderer, const std::vector<Vehicle>& vehicles, const Box& exitPosition, int gridWidth, int gridHeight) {
     
-    std::queue<int> queue ;
-    queue.push(0) ;
-
-    while (queue.size() > 0) {
-        int cindex = queue.front() ;
-        Node node = graph[cindex] ; 
-        
-        for (int i = 0; i < node.gs.numOfMouvements(); ++i) {
-            game_situation buff_gs = node.gs.moveVehicle(i) ;
-            Node new_node = Node { buff_gs, cindex } ;
-            if (new_node.gs.finalSituation()) {
-                graph.push_back(new_node) ;
-                return true ;
-            }
-            if (!alreadyExists(cindex, new_node, graph)) {
-                queue.push(graph.size()) ;
-                graph.push_back(new_node) ;
-            }
-        }
-
-        queue.pop() ;
-    }
-
-    return false ;
-}
-
-
-
-void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& renderer, const std::vector<vehicle>& vehicles, const box& exit_position, int grid_width, int grid_height) {
-    
-    int grid_width_pxl = grid_width * BOX_SIZE ; 
-    int grid_height_pxl = grid_height * BOX_SIZE ; 
+    int grid_width_pxl = gridWidth * BOX_SIZE ; 
+    int grid_height_pxl = gridHeight * BOX_SIZE ; 
 
     int xmin = WINDOW_WIDTH/2 - (grid_width_pxl/2) ;
     int ymin = WINDOW_HEIGHT/2 - (grid_height_pxl/2) ;
@@ -83,32 +35,32 @@ void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& ren
     SDL_Rect src { 0, 0, BOX_SIZE, BOX_SIZE } ;
 
     int xcurrent = 0 ;
-    int ycurrent = ymin + exit_position.row * BOX_SIZE ;
+    int ycurrent = ymin + exitPosition.Row * BOX_SIZE ;
 
-    if (exit_position.column == 0) 
+    if (exitPosition.Col == 0) 
         xcurrent = xmin - BOX_SIZE ;
 
-    if (exit_position.column == grid_width - 1) 
-        xcurrent = xmin + (exit_position.column + 1) * BOX_SIZE ;
+    if (exitPosition.Col == gridWidth - 1) 
+        xcurrent = xmin + (exitPosition.Col + 1) * BOX_SIZE ;
 
     SDL_Rect dst { xcurrent, ycurrent, BOX_SIZE, BOX_SIZE } ;
 
     SDL_RenderCopy(renderer, textures[12], &src, &dst) ;
 
     for (size_t it = 0; it < vehicles.size(); ++it) {
-        vehicle v = vehicles[it] ;
+        Vehicle v = vehicles[it] ;
 
-        int i = v.length - 1 ;
-        xcurrent = xmin + v.position.column * BOX_SIZE ;
-        ycurrent = ymin + v.position.row * BOX_SIZE ;
+        int i = v.Length - 1 ;
+        xcurrent = xmin + v.Position.Col * BOX_SIZE ;
+        ycurrent = ymin + v.Position.Row * BOX_SIZE ;
 
         dst = { 
-            xmin + v.position.column * BOX_SIZE , 
-            ymin + v.position.row * BOX_SIZE , 
+            xmin + v.Position.Col * BOX_SIZE , 
+            ymin + v.Position.Row * BOX_SIZE , 
             BOX_SIZE, BOX_SIZE } ;
 
         int d = (it == 0) ? 6 : 0 ;  
-        if (v.t_hor_f_vert) {
+        if (v.IsHorizontal) {
             SDL_RenderCopy(renderer, textures[0+d], &src, &dst) ;
             while (i > 1) {
                 xcurrent += BOX_SIZE ;
@@ -136,9 +88,13 @@ std::string filepath = "./data/files/puzzle.txt" ;
 
 int main(int argc, char** argv)
 {
-
-    if (argc > 1)
-        filepath = argv[1] ;
+    std::string auto_generated = "data/files/generated_gs.txt" ;
+    
+    if (argc == 2)
+        if (atoi(argv[1]))
+            filepath = auto_generated;
+        else 
+            filepath = argv[1] ;
 
     // initialisation de SDL2
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -151,26 +107,26 @@ int main(int argc, char** argv)
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
 
-    std::string auto_generated = "data/files/generated_gs.txt" ;
-
     Generator::rand_puzzle(auto_generated) ;
+    
+    GameSituation init_situation(auto_generated) ;
+    std::cout << "ID: " << init_situation.GetID() << std::endl;
 
-    game_situation init_situation(auto_generated) ;
+    std::vector<Graph::Node> graph ;
+    Graph::FindPath(init_situation, graph) ;
 
-    std::vector<Node> graph ;
-    findPath(init_situation, graph) ;
-
-    Node node = graph[graph.size() - 1] ;
-    std::vector<game_situation> path ; 
+    Graph::Node node = graph[graph.size() - 1] ;
+    std::vector<GameSituation> path ;
     while (node.id != -1) {
         path.push_back(node.gs) ;
         node = graph[node.id] ;
     }
 
     path.push_back(node.gs) ;
+    std::cout << "Needs " << path.size() - 1 << " moves to be resolved !" << std::endl;
 
-    int grid_width = init_situation.getGridWidth() ;
-    int grid_height = init_situation.getGridHeight() ;
+    int grid_width = init_situation.GetGridWidth() ;
+    int grid_height = init_situation.GetGridHeight() ;
 
     WINDOW_WIDTH = grid_width * BOX_SIZE + 2 * BOX_SIZE;
     WINDOW_HEIGHT = grid_height * BOX_SIZE + 2 * BOX_SIZE;
@@ -260,7 +216,7 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) ;
         SDL_RenderDrawRect(renderer, &grille);
 
-        drawGameState(textures, renderer, path[iter].getVehicles(), init_situation.getExitPosition(), grid_width, grid_height);
+        drawGameState(textures, renderer, path[iter].GetVehicles(), init_situation.GetExitPosition(), grid_width, grid_height);
 
         // std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // if (iter > 0) iter--;

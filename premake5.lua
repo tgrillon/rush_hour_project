@@ -15,19 +15,21 @@ workspace "Rush-hour"
     location "build"
     debugdir "."
 
+  otherfiles = { "Code/GameSituation.cpp", "Code/GameSituation.h", "Code/Generator.h", "Code/Graph.h" }
+
   project "Rush-hour-test"
     kind "ConsoleApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}"
     objdir "obj/%{cfg.buildcfg}"
-    files { "Code/game_situation.cpp", "Code/game_situation.h", "Code/generator.h", "Code/main.cpp" }
+    files { otherfiles, "Code/RushHourTest.cpp" }
 
   project "Rush-hour-sdl"
     kind "ConsoleApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}"
     objdir "obj/%{cfg.buildcfg}"
-    files { "Code/game_situation.cpp", "Code/game_situation.h", "Code/generator.h", "Code/main_sdl.cpp" }
+    files { otherfiles, "Code/RushHourApp.cpp" }
     includedirs { "include" }
     libdirs { "lib/x64" }
     links { "SDL2.lib", "SDL2main.lib", "SDL2_image.lib" }
