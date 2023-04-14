@@ -46,7 +46,7 @@ public:
     inline size_t NumOfMouvements() const { return m_MovableVehicles.size() ; }
     inline int GetID() const { return m_Id; }
 
-    void AddVehicle(int row, int col, int length, int direction);
+    void AddVehicle(const Vehicle& vehicle);
 
 private:
     void WriteToFile(const std::string& outputFilepath) const ;
@@ -55,6 +55,7 @@ private:
     void UpdateBoxCondition() ;
     void UpdateMovableVehicles() ;
 
+    int VehicleID(const Vehicle& vehicle) const;
     void SetID() ;
 private:
     std::vector<Vehicle> m_Vehicles ;
@@ -64,5 +65,6 @@ private:
     int m_GridHeight ;
     int m_GridWidth ;
     int m_Id;
+    int m_WRow, m_WCol;
 };
 

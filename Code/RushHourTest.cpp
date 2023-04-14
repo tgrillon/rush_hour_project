@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 
     std::string outputfile = "./data/files/generated_gs.txt";
 
-    //Generator::rand_puzzle(outputfile) ;
+    //Generator::RandPuzzle(outputfile) ;
 
     return 0;
 } 

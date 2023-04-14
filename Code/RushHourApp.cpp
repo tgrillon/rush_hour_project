@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
 
-    Generator::rand_puzzle(auto_generated) ;
+    Generator::RandPuzzle(auto_generated) ;
     
     GameSituation init_situation(auto_generated) ;
     std::cout << "ID: " << init_situation.GetID() << std::endl;

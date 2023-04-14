@@ -7,6 +7,8 @@ GameSituation::GameSituation(const std::string& input_filepath) : m_Id(0), m_Gri
     ReadFromFile(input_filepath) ;
     UpdateBoxCondition() ;
     UpdateMovableVehicles() ;
+    m_WCol = m_GridWidth - 1;
+    m_WRow = m_GridHeight;
     SetID();
 }
 
@@ -14,18 +16,20 @@ GameSituation::GameSituation(const std::vector<Vehicle> vehicles, int width, int
     : m_Vehicles(vehicles), m_GridWidth(width), m_GridHeight(height), m_ExitPosition(exitPosition), m_Id(id) {
     UpdateBoxCondition() ;
     UpdateMovableVehicles() ;
+    int m_WCol = m_GridWidth - 1;
+    int m_WRow = m_GridHeight;
 }
 
-int VehicleID(const Vehicle& vehicle, int wRow, int wCol) {
-    int value = (vehicle.Position.Row + 1) * wRow + (vehicle.Position.Col + 1) * wCol;
+int GameSituation::VehicleID(const Vehicle& vehicle) const {
+    int value = (vehicle.Position.Row + 1) * m_WRow + (vehicle.Position.Col + 1) * m_WCol;
     int i = 1;
     while (i < vehicle.Length) {
         if (vehicle.IsHorizontal) {
-            value *= (((vehicle.Position.Row + 1) * wRow + ((vehicle.Position.Col + 1) + i) * wCol));
+            value *= (((vehicle.Position.Row + 1) * m_WRow + ((vehicle.Position.Col + 1) + i) * m_WCol));
             i++;
             continue;
         }
-        value *= ((((vehicle.Position.Row + 1) + i) * wRow + (vehicle.Position.Col + 1) * wCol));
+        value *= ((((vehicle.Position.Row + 1) + i) * m_WRow + (vehicle.Position.Col + 1) * m_WCol));
         i++;
     }
 
@@ -33,11 +37,8 @@ int VehicleID(const Vehicle& vehicle, int wRow, int wCol) {
 }
 
 void GameSituation::SetID() {
-    int wCol = m_GridWidth - 1;
-    int wRow = m_GridHeight;
-
     for (const Vehicle& vehicle : m_Vehicles) 
-        m_Id += VehicleID(vehicle, wRow, wCol);
+        m_Id += VehicleID(vehicle);
 }
 
 bool GameSituation::FinalSituation() const { 
@@ -46,34 +47,17 @@ bool GameSituation::FinalSituation() const {
 }
 
 // linear complexity 
-//bool GameSituation::SameSituation(const GameSituation& gs) const {
-//    std::vector<Vehicle> Vehicles = gs.GetVehicles() ;
-//    for (int i = 0; i < m_Vehicles.size(); ++i) {
-//        Vehicle v1 = m_Vehicles[i] ;
-//        Vehicle v2 = Vehicles[i] ;
-//        if (v1.Position.Row != v2.Position.Row) return false ;  
-//        if (v1.Position.Col != v2.Position.Col) return false ;  
-//        if (v1.Length != v2.Length) return false ;  
-//        if (v1.IsHorizontal != v2.IsHorizontal) return false ;  
-//    }
-//
-//    return true ;
-//}
-
-// linear complexity 
 void GameSituation::UpdateBoxCondition() {
     if (!m_BoxCondition.empty())
         m_BoxCondition.clear() ;
     m_BoxCondition.assign(m_GridWidth*m_GridHeight, true) ;
 
     for (Vehicle v : m_Vehicles) {
-        int i = v.Length - 1 ;
-        while (i >= 0) {
-            if (v.IsHorizontal)
-                m_BoxCondition[v.Position.Row*m_GridWidth + v.Position.Col + i] = false ;
-            else // vertical 
-                m_BoxCondition[(v.Position.Row + i)*m_GridWidth + v.Position.Col] = false ;
-            --i ;
+        int l = 0 ;
+        while (l < v.Length) {
+            int idx = ((v.Position.Row + (1 - v.IsHorizontal) * l)) * m_GridWidth + (v.Position.Col + v.IsHorizontal * l);
+            m_BoxCondition[idx] = false ;
+            l++ ;
         }
     }
 }
@@ -110,12 +94,13 @@ void GameSituation::UpdateMovableVehicles() {
     }
 }
 
-void GameSituation::AddVehicle(int Row, int col, int length, int direction) {
+void GameSituation::AddVehicle(const Vehicle& vehicle) {
     Vehicle vh;
-    vh.Length = length;
-    vh.IsHorizontal = direction;
-    vh.Position = Box(Row, col);
+    vh.Length = vehicle.Length;
+    vh.IsHorizontal = vehicle.IsHorizontal;
+    vh.Position = Box(vehicle.Position.Row, vehicle.Position.Col);
     m_Vehicles.push_back(vh);
+    m_Id += VehicleID(vh);
     UpdateBoxCondition();
     UpdateMovableVehicles();
 }
@@ -128,9 +113,7 @@ GameSituation GameSituation::MoveVehicle(size_t i) {
     int delta = direction ;
     Vehicle v = m_Vehicles[index] ;
 
-    int wRow = m_GridHeight;
-    int wCol = m_GridWidth - 1;
-    int nextID = m_Id - VehicleID(v, wRow, wCol);
+    int nextID = m_Id - VehicleID(v);
 
     if (v.IsHorizontal) {
         if (direction < 0) {
@@ -169,7 +152,7 @@ GameSituation GameSituation::MoveVehicle(size_t i) {
     }
     std::vector<Vehicle> new_Vehicle_array = m_Vehicles ;
 
-    nextID = m_Id + VehicleID(v, wRow, wCol);
+    nextID = m_Id + VehicleID(v);
     new_Vehicle_array[index] = v ;
     return GameSituation(new_Vehicle_array, m_GridWidth, m_GridHeight, m_ExitPosition, nextID) ;
 }

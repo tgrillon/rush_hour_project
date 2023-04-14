@@ -8,136 +8,152 @@
 
 #include "Graph.h"
 
-void addLine(std::string& output, int row, int col, int len, int dir) {
-    std::ofstream o_stream(output, std::ios::app);
-    if (!o_stream.is_open()) {
+void AddLine(std::string& output, const Vehicle& vehicle) {
+    std::ofstream oStream(output, std::ios::app);
+    if (!oStream.is_open()) {
         std::cerr << "Can't find this file: " << output << std::endl;
         exit(-1);
     }
-    o_stream << '\n';
-    o_stream << row;
-    o_stream << ' ';
-    o_stream << col;
-    o_stream << ' ';
-    o_stream << len;
-    o_stream << ' ';
-    o_stream << dir;
-    o_stream.close();
+    oStream << '\n';
+    oStream << vehicle.Position.Row;
+    oStream << ' ';
+    oStream << vehicle.Position.Col;
+    oStream << ' ';
+    oStream << vehicle.Length;
+    oStream << ' ';
+    oStream << vehicle.IsHorizontal;
+    oStream.close();
 }
 
 namespace Generator {
-    const int size_grid = 6;
+    const int gridSize = 6;
 
-    void rand_puzzle(std::string& output_file) {
+    void RandPuzzle(std::string& outputFile) {
+       /* std::random_device rng;
+        std::uniform_int_distribution<int> ur(0, size_grid - 1);
+        std::uniform_int_distribution<int> uc(0, size_grid - 3);*/
 
-        std::ofstream f_writing(output_file.c_str());
+        Vehicle first;
+        first.Position = Box(1, 0);
+        first.Length = 2;
+        first.IsHorizontal = 1;
 
-        if (f_writing) {
-            std::vector<std::pair<int, int>> pairs;
+        std::ofstream oStream(outputFile.c_str());
+        if (!oStream.is_open()) {
+            std::cerr << "Can't find this file: " << outputFile << std::endl;
+            exit(-1);
+        }
+        // dimension
+        oStream << gridSize;
+        oStream << ' ';
+        oStream << gridSize;
+        oStream << '\n';
 
-            std::random_device rng;
-            std::uniform_int_distribution<int> ur(0, size_grid - 1);
-            std::uniform_int_distribution<int> uc(0, size_grid - 3);
+        // exit position 
+        oStream << first.Position.Row;
+        oStream << ' ';
+        oStream << gridSize - 1;
+        oStream.close();
 
-            int exit_row = 2;
-            int exit_column = 2;
+        AddLine(outputFile, first);
 
+        std::vector<Vehicle> possibilities;
+        // all available vehicles 
+        for (int h = 0; h < gridSize; ++h) {
+            for (int w = 0; w < gridSize; ++w) {
+                if (h == first.Position.Row && (w == first.Position.Col || w == first.Position.Col + 1))
+                    continue;
 
-            std::ofstream f_writing(output_file.c_str());
-            // dimension
-            f_writing << size_grid;
-            f_writing << ' ';
-            f_writing << size_grid;
-            f_writing << '\n';
-
-            // exit position 
-            f_writing << exit_row;
-            f_writing << ' ';
-            f_writing << size_grid - 1;
-            f_writing.close();
-
-            addLine(output_file, exit_row, exit_column, 2, 1);
-
-            // all available boxes  
-            for (int h = 0; h < size_grid; ++h) {
-                for (int w = 0; w < size_grid; ++w) {
-                    if (h == exit_row && (w == exit_column || w == exit_column + 1))
-                        continue;
-                    pairs.push_back({ h, w });
+                for (int l = 2; l <= 3; ++l) {
+                    for (int d = 0; d <= 1; ++d) {
+                        if (!d && h + l - 1 >= gridSize)
+                            continue;
+                        if (d && w + l - 1 >= gridSize)
+                            continue;
+                        if (d && h == first.Position.Row)
+                            continue;
+                        Vehicle vehicle;
+                        vehicle.Position = Box(h, w);
+                        vehicle.Length = l;
+                        vehicle.IsHorizontal = d;
+                        possibilities.push_back(vehicle);
+                    }
                 }
             }
+        }
 
-           /* std::cout << "[ ";
-            for (const auto& p : pairs) {
-                std::cout << "(" << p.first << ", " << p.second << "), " << " ";
-            }
-            std::cout << " ]\n";*/
+        std::cout << "num of possibilities: " << possibilities.size() << std::endl;
 
-            int count = 1;
+        std::vector<bool> boxes(gridSize * gridSize, true);
+        boxes[first.Position.Row * gridSize + first.Position.Col] = false;
+        boxes[first.Position.Row * gridSize + first.Position.Col + 1] = false;
+
+        /*std::cout << "[ ";
+        for (const auto& p : possibilities) {
+            std::cout << "(" << p.Position.Row << ", " << p.Position.Col << ", " << p.Length << ", " << p.IsHorizontal << "), " << " ";
+        }
+        std::cout << " ]\n";*/
+
+        int count = 1;
             
-            int total_vehicles = size_grid * size_grid / 3;
-            int failes = 0;
-            while (count < size_grid * size_grid / 3 && !pairs.empty()) {
-                std::vector<std::pair<int, int>> buffer = pairs; 
+        int totalVehicles = gridSize * gridSize / 3;
+        int failes = -1;
+        bool stop = false;
+        int erases = 0;
+        while (count < gridSize * gridSize / 3 && !possibilities.empty() && !boxes.empty()) {
+            //std::vector<Vehicle> bufferVhc = possibilities;
+            Vehicle vehicle;
+            int isValid;
+            std::vector<bool> bufferBox;
+            do {
+                failes++;
+                if (possibilities.empty()) {
+                    stop = true;
+                    break;
+                }
 
                 std::random_device rng;
-                std::uniform_int_distribution<int> u(0, buffer.size() - 1);
-                std::uniform_int_distribution<int> ul(2, 3);
-                std::uniform_int_distribution<int> ud(0, 1);
-
-                int length = ul(rng);
-                int direction = ud(rng);
+                std::uniform_int_distribution<int> u(0, possibilities.size() - 1);
+                
+                bufferBox = boxes;
                 int key = u(rng);
+                vehicle = possibilities[key];
+                possibilities.erase(possibilities.begin() + key);
+                erases++;
 
-                std::pair<int, int> pair = buffer[key];
-                if (pair.first == exit_row && direction) {
-                    direction = 0;
+                int len = 0;
+                isValid = true;
+                while (len < vehicle.Length) {
+                    int idx = ((vehicle.Position.Row + (1 - vehicle.IsHorizontal) * len)) * gridSize + (vehicle.Position.Col + vehicle.IsHorizontal * len);
+                    if (!bufferBox[idx]) {
+                        isValid = false;
+                        break;
+                    }
+                    bufferBox[idx] = false;
+                    len++;
                 }
+            } while (!isValid);
 
-                if (pair.first + (1 - direction) * (length - 1) < size_grid &&
-                    pair.second + direction * (length - 1) < size_grid) {
-                    std::stack<std::pair<int, int>> s;
-                    buffer.erase(buffer.begin() + key);
-
-                    int n = 1;
-                    int i = 0;
-                    while (i < buffer.size()) {
-                        if (n == length) break;
-                        std::pair<int, int> p = buffer[i];
-                        for (int l = 1; l < length; ++l) {
-                            int hl = pair.first + (1 - direction) * l;
-                            int wl = pair.second + direction * l;
-                            if (wl == p.second && hl == p.first) {
-                                std::pair<int, int> buff = pairs[i];
-                                s.push(buff);
-                                buffer.erase(buffer.begin() + i);
-                                n++;
-                            }
-                        }
-                        i++;
-                    }
-
-                    if (n != length) {
-                        failes++;
-                        continue;
-                    }
-                    
-                    GameSituation gs_test(output_file);
-                    gs_test.AddVehicle(pair.first, pair.second, length, direction);
-
-                    std::vector<Graph::Node> graph;
-                    if (!FindPath(gs_test, graph)) {
-                        failes++;
-                        continue;
-                    }
-
-                    pairs = buffer;
-                    count++;
-                    std::cout << (int)((float)count / (float)total_vehicles * 100) << "% (" << count << "/" << total_vehicles << ") has failed " << failes << " times" << std::endl;
-                    failes = 0;
-                    addLine(output_file, pair.first, pair.second, length, direction);
-                }
+            if (stop) {
+                std::cout << "Stopped! " << (int)((float)count / (float)totalVehicles * 100) << "% (" << count << "/" << totalVehicles << ") has failed " << failes << " times" << std::endl;
+                std::cout << "Erases: " << erases << std::endl;
+                break;
             }
+                    
+            GameSituation gs_test(outputFile);
+            gs_test.AddVehicle(vehicle);
+
+            std::vector<Graph::Node> graph;
+            if (!FindPath(gs_test, graph)) {
+                failes++;
+                continue;
+            }
+            
+            count++;
+            boxes = bufferBox;
+            std::cout << (int)((float)count / (float)totalVehicles * 100) << "% (" << count << "/" << totalVehicles << ") has failed " << failes << " times" << std::endl;
+            failes = 0;
+            AddLine(outputFile, vehicle);
         }
     }
 }
