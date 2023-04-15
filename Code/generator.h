@@ -7,7 +7,8 @@
 
 #include "Graph.h"
 
-#define PROMPT 0
+#define PROMPT 1
+#define TEST 0
 
 void AddLine(std::string& output, const Vehicle* vehicle) {
     std::ofstream oStream(output, std::ios::app);
@@ -46,7 +47,6 @@ void InitFile(std::string& outputFile, const Vehicle* vehicle, int gridSize) {
 
     AddLine(outputFile, vehicle);
 }
-
 
 namespace Generator {
     const int gridSize = 6;
@@ -167,23 +167,17 @@ namespace Generator {
         first.Length = 2;
         first.IsHorizontal = 1;
 
-#if PROMPT
-        std::cout << "Generating the target position:" << std::endl;
-#endif
-
         do {
-            RandPuzzle(outputFile, &first, true);
 #if PROMPT
             std::cout << "\x1B[2J\x1B[H";
             std::cout << "Generating the target position:" << std::endl;
 #endif
-        } while (!(GameSituation(outputFile).IsMovable(0)));
+            RandPuzzle(outputFile, &first, true);
+        } while (!(GameSituation(outputFile).CanBeATarget()));
     }
 
     void HardestPuzzle(std::string& outputFile) {
 
-
-#define TEST 0
 #if TEST
         GameSituation target("./data/files/b.txt");
 #else
@@ -230,11 +224,12 @@ namespace Generator {
         std::cout << "Searching the initial position requesting the most car moves" << std::endl;
 #endif
 
-        for (int i = size - 1; i >= size - size / 4; --i) {
+        for (int i = size - 1; i >= size - size / 10; --i) {
             GameSituation gs = graph[i].Gs;
 
             int moves = Graph::Path(gs).size();
             if (moves > maxMoves) {
+                //std::cout << i << ": " << graph[i].Id << " for " << graph.size() << " nodes." << std::endl;
                 maxMoves = moves;
                 iSituation = i;
             }
@@ -242,7 +237,7 @@ namespace Generator {
 #if PROMPT
             std::cout << "\x1B[2J\x1B[H";
             std::cout << "Searching the initial position requesting the most car moves" << std::endl;
-            std::cout << "Loading... " << float(size - i) / float(size / 4) * 100 << "% (current requested moves: " << maxMoves << ")" << std::endl;
+            std::cout << "Loading... " << float(size - i) / float(size / 10) * 100 << "% (" << size - i << "/" << size / 10 << ") (current requested moves: " << maxMoves - 1 << ")" << std::endl;
 #endif
         }
 

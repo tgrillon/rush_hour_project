@@ -35,17 +35,17 @@ public:
     ~GameSituation() = default ;
 
     bool FinalSituation() const ;
-    bool IsMovable(int index) const;
 
     GameSituation MoveVehicle(size_t i);
 
-    inline bool SameSituation(const GameSituation& gs) const { return gs.GetID() == m_Id; }
+    inline bool CanBeATarget() const { return m_CanBeATarget; }
+    inline bool SameSituation(const GameSituation& gs) const { return gs.GetMask() == m_Mask; }
     inline int GetGridHeight() const { return m_GridHeight ; }
     inline int GetGridWidth() const { return m_GridWidth ; }
     inline Box GetExitPosition() const { return m_ExitPosition ; }
     inline std::vector<Vehicle> GetVehicles() const { return m_Vehicles ; }
     inline size_t NumOfMouvements() const { return m_MovableVehicles.size() ; }
-    inline int GetID() const { return m_Id; }
+    inline int GetMask() const { return m_Mask; }
 
     void AddVehicle(const Vehicle& vehicle);
 
@@ -54,20 +54,21 @@ public:
 private:
     void ReadFromFile(const std::string& inputFilepath) ;  
 
-    int VehicleID(const Vehicle& vehicle) const;
+    int VehicleMask(const Vehicle& vehicle) const;
+    void SetMask() ;
     
     void UpdateBoxCondition() ;
     void UpdateMovableVehicles() ;
 
-    void SetID() ;
 private:
     std::vector<Vehicle> m_Vehicles ;
     std::vector<bool> m_BoxCondition ;
     std::vector<Movement> m_MovableVehicles ;
     Box m_ExitPosition ;
+    bool m_CanBeATarget;
     int m_GridHeight ;
     int m_GridWidth ;
-    int m_Id;
+    int m_Mask;
     int m_WRow, m_WCol;
 };
 
