@@ -3,11 +3,12 @@ CC = g++
 FLAGS = -Wall -g 
 
 CODE_REP = ./Code  
-OBJ_TEST = ./obj/main.o ./obj/game_situation.o
-OBJ_SDL = ./obj/main_sdl.o ./obj/game_situation.o
+OBJ_UTILS = ./obj/GameSituation.o ./obj/Graph.o ./obj/Generator.o ./obj/Timer.o
+OBJ_TEST = ./obj/RushHourTest.o $(OBJ_UTILS)
+OBJ_SDL = ./obj/RushHourApp.o $(OBJ_UTILS)
 
-EXE_SDL = ./bin/rush_hour_sdl 
-EXE_TEST = ./bin/rush_hour_test
+EXE_SDL = ./bin/RushHourApp 
+EXE_TEST = ./bin/RushHourTest
 
 ALL_EXE = $(EXE_SDL) $(EXE_TEST)
 
@@ -19,14 +20,23 @@ $(EXE_SDL): $(OBJ_SDL)
 $(EXE_TEST): $(OBJ_TEST)
 	$(CC) -g $^ -o $@
 
-./obj/main_sdl.o: ./Code/main_sdl.cpp ./Code/game_situation.h
+./obj/RushHourApp.o: ./Code/RushHourApp.cpp ./Code/GameSituation.h ./Code/Timer.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-./obj/main.o: ./Code/main.cpp ./Code/game_situation.h
+./obj/RushHourTest.o: ./Code/RushHourTest.cpp ./Code/GameSituation.h ./Code/Timer.h
 	$(CC) $(FLAGS) -c $< -o $@
 
-./obj/game_situation.o: ./Code/game_situation.cpp ./Code/game_situation.h
+./obj/GameSituation.o: ./Code/GameSituation.cpp ./Code/GameSituation.h
 	$(CC) $(FLAGS) -c $< -o $@
+
+./obj/Graph.o: ./Code/Graph.h ./Code/GameSituation.h
+$(CC) $(FLAGS) -c $< -o $@
+
+./obj/Generator.o: ./Code/Generator.h ./Code/Graph.h 
+$(CC) $(FLAGS) -c $< -o $@
+
+./obj/Timer.o: ./Code/Timer.h ./Code/Graph.h 
+$(CC) $(FLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(ALL_EXE) ./obj/*

@@ -2,7 +2,7 @@ workspace "Rush-hour"
   configurations { "Debug", "Release" }
   architecture "x86_64"
   location "build"
-
+  
   filter "configurations:Debug"
     defines { "DEBUG" }
     symbols "On"
@@ -15,19 +15,21 @@ workspace "Rush-hour"
     location "build"
     debugdir "."
 
+  otherfiles = { "Code/GameSituation.cpp", "Code/GameSituation.h", "Code/Generator.h", "Code/Graph.h", "Code/Timer.h" }
+
   project "Rush-hour-test"
     kind "ConsoleApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}"
     objdir "obj/%{cfg.buildcfg}"
-    files { "Code/game_situation.cpp", "Code/game_situation.h", "Code/main.cpp" }
+    files { otherfiles, "Code/RushHourTest.cpp" }
 
   project "Rush-hour-sdl"
     kind "ConsoleApp"
     language "C++"
     targetdir "bin/%{cfg.buildcfg}"
     objdir "obj/%{cfg.buildcfg}"
-    files { "Code/game_situation.cpp", "Code/game_situation.h", "Code/main_sdl.cpp" }
+    files { otherfiles, "Code/RushHourApp.cpp" }
     includedirs { "include" }
     libdirs { "lib/x64" }
     links { "SDL2.lib", "SDL2main.lib", "SDL2_image.lib" }
