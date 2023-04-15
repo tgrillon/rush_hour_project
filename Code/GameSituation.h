@@ -35,6 +35,7 @@ public:
     ~GameSituation() = default ;
 
     bool FinalSituation() const ;
+    bool IsMovable(int index) const;
 
     GameSituation MoveVehicle(size_t i);
 
@@ -48,14 +49,16 @@ public:
 
     void AddVehicle(const Vehicle& vehicle);
 
-private:
     void WriteToFile(const std::string& outputFilepath) const ;
+
+private:
     void ReadFromFile(const std::string& inputFilepath) ;  
+
+    int VehicleID(const Vehicle& vehicle) const;
     
     void UpdateBoxCondition() ;
     void UpdateMovableVehicles() ;
 
-    int VehicleID(const Vehicle& vehicle) const;
     void SetID() ;
 private:
     std::vector<Vehicle> m_Vehicles ;

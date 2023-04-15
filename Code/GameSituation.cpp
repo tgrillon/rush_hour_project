@@ -16,8 +16,8 @@ GameSituation::GameSituation(const std::vector<Vehicle> vehicles, int width, int
     : m_Vehicles(vehicles), m_GridWidth(width), m_GridHeight(height), m_ExitPosition(exitPosition), m_Id(id) {
     UpdateBoxCondition() ;
     UpdateMovableVehicles() ;
-    int m_WCol = m_GridWidth - 1;
-    int m_WRow = m_GridHeight;
+    m_WCol = m_GridWidth - 1;
+    m_WRow = m_GridHeight;
 }
 
 int GameSituation::VehicleID(const Vehicle& vehicle) const {
@@ -33,7 +33,7 @@ int GameSituation::VehicleID(const Vehicle& vehicle) const {
         i++;
     }
 
-    return value;
+    return vehicle.IsHorizontal ? value : -value;
 }
 
 void GameSituation::SetID() {
@@ -105,6 +105,15 @@ void GameSituation::AddVehicle(const Vehicle& vehicle) {
     UpdateMovableVehicles();
 }
 
+bool GameSituation::IsMovable(int index) const {
+    for (const Movement& move : m_MovableVehicles) {
+        if (move.Index == index)
+            return true;
+    }
+
+    return false;
+}
+
 // Theta(1) complexity 
 GameSituation GameSituation::MoveVehicle(size_t i) {
     Movement m = m_MovableVehicles[i] ;
@@ -152,7 +161,7 @@ GameSituation GameSituation::MoveVehicle(size_t i) {
     }
     std::vector<Vehicle> new_Vehicle_array = m_Vehicles ;
 
-    nextID = m_Id + VehicleID(v);
+    nextID += VehicleID(v);
     new_Vehicle_array[index] = v ;
     return GameSituation(new_Vehicle_array, m_GridWidth, m_GridHeight, m_ExitPosition, nextID) ;
 }

@@ -15,7 +15,7 @@ workspace "Rush-hour"
     location "build"
     debugdir "."
 
-  otherfiles = { "Code/GameSituation.cpp", "Code/GameSituation.h", "Code/Generator.h", "Code/Graph.h" }
+  otherfiles = { "Code/GameSituation.cpp", "Code/GameSituation.h", "Code/Generator.h", "Code/Graph.h", "Code/Timer.h" }
 
   project "Rush-hour-test"
     kind "ConsoleApp"

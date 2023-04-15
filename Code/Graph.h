@@ -5,13 +5,15 @@
 
 namespace Graph {
     struct Node {
-        GameSituation gs;
-        int id;
+        Node(GameSituation gs, int id) : Gs(gs), Id(id) {}
+        GameSituation Gs;
+        int Id;
     };
 
+    // Linear complexity
     bool AlreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
         for (int i = 0; i < graph.size(); ++i) {
-            if (node.gs.SameSituation(graph[i].gs)) {
+            if (node.Gs.SameSituation(graph[i].Gs)) {
                 return true;
             }
         }
@@ -19,6 +21,7 @@ namespace Graph {
         return false;
     }
 
+    // Linear complexity
     bool FindPath(const GameSituation& init, std::vector<Node>& graph) {
         graph.push_back({ init, -1 });
 
@@ -29,18 +32,17 @@ namespace Graph {
             int cindex = queue.front();
             Node node = graph[cindex];
 
-            for (int i = 0; i < node.gs.NumOfMouvements(); ++i) {
-                if (graph.size() > 2000)
-                    return false;
-                GameSituation buff_gs = node.gs.MoveVehicle(i);
-                Node new_node = Node{ buff_gs, cindex };
-                if (new_node.gs.FinalSituation()) {
-                    graph.push_back(new_node);
+            for (int i = 0; i < node.Gs.NumOfMouvements(); ++i) {
+                GameSituation buffGs = node.Gs.MoveVehicle(i);
+                Node newNode = Node{ buffGs, cindex };
+                if (newNode.Gs.FinalSituation()) {
+                    graph.push_back(newNode);
                     return true;
                 }
-                if (!AlreadyExists(cindex, new_node, graph)) {
+
+                if (!AlreadyExists(cindex, newNode, graph)) {
                     queue.push(graph.size());
-                    graph.push_back(new_node);
+                    graph.push_back(newNode);
                 }
             }
 
@@ -48,5 +50,22 @@ namespace Graph {
         }
 
         return false;
+    }
+
+    // Linear complexity
+    std::vector<GameSituation> Path(const GameSituation& init) {
+        std::vector<Graph::Node> graph;
+        Graph::FindPath(init, graph);
+
+        Graph::Node node = graph[graph.size() - 1];
+        std::vector<GameSituation> path;
+        while (node.Id != -1) {
+            path.push_back(node.Gs);
+            node = graph[node.Id];
+        }
+
+        path.push_back(node.Gs);
+
+        return path;
     }
 }
