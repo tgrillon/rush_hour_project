@@ -18,7 +18,7 @@
 #include "Generator.h"
 #include "Timer.h"
 
-#define ANIME 0   // animation: value=milliseconds lapsed time between two situations
+#define ANIME 100   // animation: value=milliseconds lapsed time between two situations
 #define BASIC 0   // textures
 #define HPUZZLE 1 // hardest puzzle
 
@@ -122,7 +122,8 @@ int main(int argc, char** argv)
     //std::cout << "Mask: " << initSituation.GetMask() << std::endl;
 
     const std::vector<GameSituation>& path = Graph::Path(initSituation);
-    std::cout << "Elapsed Time: " << timer.ElapsedMillis() / 1000.0f << "s" << std::endl;
+    float elapsedTime = timer.ElapsedMillis() / 1000.0f;
+    std::cout << "Elapsed Time: " << elapsedTime << "s" << std::endl;
     std::cout << "Needs " << path.size() - 1 << " moves to be resolved !" << std::endl;
 
     /*==================================================================*/
@@ -230,6 +231,7 @@ int main(int argc, char** argv)
     uint32_t iter = path.size() - 1 ;
     SDL_Event events ;
     bool isOpen = true ;
+    bool anime = false;
     while(isOpen) {
         while (SDL_PollEvent(&events)) {
             switch (events.type) {
@@ -249,14 +251,20 @@ int main(int argc, char** argv)
                     if (iter > 0)
                         --iter ;
                     else iter = 0 ;
+                } 
+#if ANIME
+                else if (events.key.keysym.scancode == SDL_SCANCODE_Q) {
+                    anime = !anime;
+                    iter = path.size() - 1;
                 }
+#endif
 
                 break;
 
             }
         }
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255) ;
+        SDL_SetRenderDrawColor(renderer, 241, 229, 214, 255) ;
         SDL_RenderClear(renderer) ;
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) ;
@@ -265,13 +273,15 @@ int main(int argc, char** argv)
         drawGameState(textures, renderer, path[iter].GetVehicles(), initSituation.GetExitPosition(), gridWidth, gridHeight);
 
 #if ANIME
-         std::this_thread::sleep_for(std::chrono::milliseconds(ANIME));
-         if (iter > 0) iter--;
-         else {
-             iter = path.size() - 1;
-         }
-         if (iter == path.size() - 2)
-             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        if (anime) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(ANIME));
+            if (iter > 0) iter--;
+            else {
+                iter = path.size() - 1;
+            }
+            if (iter == path.size() - 2)
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
 #endif
 
         SDL_RenderPresent(renderer);

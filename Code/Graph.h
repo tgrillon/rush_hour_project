@@ -10,10 +10,10 @@ namespace Graph {
         int Id;
     };
 
-    // Linear complexity
+    // Omega(1) - O(n)
     bool AlreadyExists(int cindex, Node& node, std::vector<Node>& graph) {
         for (int i = 0; i < graph.size(); ++i) {
-            if (node.Gs.SameSituation(graph[i].Gs)) {
+            if (node.Gs.SameSituation(graph[i].Gs)) { // 0(1)
                 return true;
             }
         }
@@ -21,9 +21,12 @@ namespace Graph {
         return false;
     }
 
-    // Linear complexity
+    // Omega(1) - O(n)
     bool FindPath(const GameSituation& init, std::vector<Node>& graph) {
         graph.push_back({ init, -1 });
+
+        if (init.FinalSituation())
+            return true;
 
         std::queue<int> queue;
         queue.push(0);
@@ -35,12 +38,12 @@ namespace Graph {
             for (int i = 0; i < node.Gs.NumOfMouvements(); ++i) {
                 GameSituation buffGs = node.Gs.MoveVehicle(i);
                 Node newNode = Node{ buffGs, cindex };
-                if (newNode.Gs.FinalSituation()) {
+                if (newNode.Gs.FinalSituation()) { // 0(1)
                     graph.push_back(newNode);
                     return true;
                 }
 
-                if (!AlreadyExists(cindex, newNode, graph)) {
+                if (!AlreadyExists(cindex, newNode, graph)) { // 0(1)
                     queue.push(graph.size());
                     graph.push_back(newNode);
                 }
@@ -52,7 +55,7 @@ namespace Graph {
         return false;
     }
 
-    // Linear complexity
+    // 0(n)
     std::vector<GameSituation> Path(const GameSituation& init) {
         std::vector<Graph::Node> graph;
         Graph::FindPath(init, graph);

@@ -1,25 +1,26 @@
 #include "GameSituation.h"
 #include <iostream>
 
-#define LOG(STR, X) std::cout << STR << " " << X << std::endl ; 
-
+// 0(n)
 GameSituation::GameSituation(const std::string& input_filepath) : m_Mask(0), m_GridWidth(6), m_GridHeight(6), m_CanBeATarget(false) {
     ReadFromFile(input_filepath) ;
-    UpdateBoxCondition() ;
-    UpdateMovableVehicles() ;
+    UpdateBoxCondition() ; // Theta(n)
+    UpdateMovableVehicles() ; // Theta(n)
     m_WCol = m_GridWidth - 1;
     m_WRow = m_GridHeight;
     SetMask();
 }
 
+// 0(n)
 GameSituation::GameSituation(const std::vector<Vehicle> vehicles, int width, int height, const Box& exitPosition, int mask) 
     : m_Vehicles(vehicles), m_GridWidth(width), m_GridHeight(height), m_ExitPosition(exitPosition), m_Mask(mask), m_CanBeATarget(false) {
-    UpdateBoxCondition() ;
-    UpdateMovableVehicles() ;
+    UpdateBoxCondition() ; // 0(n)
+    UpdateMovableVehicles() ; // 0(n)
     m_WCol = m_GridWidth - 1;
     m_WRow = m_GridHeight;
 }
 
+// 0(1)
 int GameSituation::VehicleMask(const Vehicle& vehicle) const {
     int value = (vehicle.Position.Row + 1) * m_WRow + (vehicle.Position.Col + 1) * m_WCol;
     int i = 1;
@@ -36,20 +37,21 @@ int GameSituation::VehicleMask(const Vehicle& vehicle) const {
     return vehicle.IsHorizontal ? value : -value;
 }
 
+// 0(n)
 void GameSituation::SetMask() {
     for (const Vehicle& vehicle : m_Vehicles) 
         m_Mask += VehicleMask(vehicle);
 }
 
+// 0(1)
 bool GameSituation::FinalSituation() const { 
     return m_Vehicles[0].Position.Row == m_ExitPosition.Row &&
         m_Vehicles[0].Position.Col + m_Vehicles[0].Length - 1 == m_ExitPosition.Col; 
 }
 
-// linear complexity 
+// Theta(n)
 void GameSituation::UpdateBoxCondition() {
-    if (!m_BoxCondition.empty())
-        m_BoxCondition.clear() ;
+    m_BoxCondition.clear() ;
     m_BoxCondition.assign(m_GridWidth*m_GridHeight, true) ;
 
     for (Vehicle v : m_Vehicles) {
@@ -62,7 +64,7 @@ void GameSituation::UpdateBoxCondition() {
     }
 }
 
-// linear complexity
+// 0(n)
 void GameSituation::UpdateMovableVehicles() {
     if (!m_MovableVehicles.empty())
         m_MovableVehicles.clear() ;
@@ -102,18 +104,19 @@ void GameSituation::UpdateMovableVehicles() {
     }
 }
 
+// 0(n)
 void GameSituation::AddVehicle(const Vehicle& vehicle) {
     Vehicle vh;
     vh.Length = vehicle.Length;
     vh.IsHorizontal = vehicle.IsHorizontal;
     vh.Position = Box(vehicle.Position.Row, vehicle.Position.Col);
     m_Vehicles.push_back(vh);
-    m_Mask += VehicleMask(vh);
-    UpdateBoxCondition();
-    UpdateMovableVehicles();
+    m_Mask += VehicleMask(vh); // 0(1)
+    UpdateBoxCondition(); // 0(n)
+    UpdateMovableVehicles(); // 0(n)
 }
 
-// Theta(1) complexity 
+// 0(n)
 GameSituation GameSituation::MoveVehicle(size_t i) {
     Movement m = m_MovableVehicles[i] ;
     int index = m.Index ;
@@ -158,13 +161,14 @@ GameSituation GameSituation::MoveVehicle(size_t i) {
         }      
         v.Position.Row += delta ;
     }
-    std::vector<Vehicle> new_Vehicle_array = m_Vehicles ;
+    std::vector<Vehicle> new_Vehicle_array = m_Vehicles;
 
-    nextID += VehicleMask(v);
+    nextID += VehicleMask(v); // 0(1)
     new_Vehicle_array[index] = v ;
     return GameSituation(new_Vehicle_array, m_GridWidth, m_GridHeight, m_ExitPosition, nextID) ;
 }
 
+// 0(n)
 void GameSituation::ReadFromFile(const std::string& input_filepath) {
     std::ifstream f_reading(input_filepath.c_str()) ;
 
@@ -192,6 +196,7 @@ void GameSituation::ReadFromFile(const std::string& input_filepath) {
     f_reading.close() ;
 }
 
+// 0(n)
 void GameSituation::WriteToFile(const std::string& output_filepath) const {
     std::ofstream f_writing(output_filepath.c_str()) ;
 

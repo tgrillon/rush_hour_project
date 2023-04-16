@@ -1,7 +1,7 @@
 #pragma once
 
    /************************************************************************/
-  /*******Credit: https://github.com/TheCherno/Walnut.git******************/
+  /*****  Credit: https://github.com/TheCherno/Walnut.git  ****************/
  /************************************************************************/
 
 #include <iostream>
