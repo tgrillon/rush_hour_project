@@ -7,7 +7,7 @@
 
 #include "Graph.h"
 
-#define PROMPT 0
+#define PROMPT 1
 #define TEST 0 
 
 // 0(1)
@@ -126,7 +126,8 @@ namespace Generator {
                 int len = 0;
                 isValid = true;
                 while (len < vehicle.Length) {
-                    int idx = ((vehicle.Position.Row + (1 - vehicle.IsHorizontal) * len)) * gridSize + (vehicle.Position.Col + vehicle.IsHorizontal * len);
+                    int idx = ((vehicle.Position.Row + (1 - vehicle.IsHorizontal) * len)) 
+                        * gridSize + (vehicle.Position.Col + vehicle.IsHorizontal * len);
                     if (!bufferBox[idx]) {
                         isValid = false;
                         break;
@@ -138,7 +139,8 @@ namespace Generator {
 
             if (stop) {
 #if PROMPT
-                std::cout << "Stopped! " << (int)((float)count / (float)totalVehicles * 100) << "% (" << count << "/" << totalVehicles << ") has failed " << failures << " times" << std::endl;
+                std::cout << "Stopped! " << (int)((float)count / (float)totalVehicles * 100) << "% (" 
+                    << count << "/" << totalVehicles << ") has failed " << failures << " times" << std::endl;
 #endif
                 break;
             }
@@ -156,13 +158,16 @@ namespace Generator {
             boxes = bufferBox;
 
 #if PROMPT
-            std::cout << (int)((float)count / (float)totalVehicles * 100) << "% (" << count << "/" << totalVehicles << ") has failed " << failures << " times" << std::endl;
+            std::cout << (int)((float)count / (float)totalVehicles * 100) << "% (" 
+            << count << "/" << totalVehicles << ") has failed " << failures << " times" << std::endl;
 #endif
 
             failures = 0;
             AddLine(outputFile, &vehicle);
         }
     }
+
+
 
     void TargetPosition(std::string& outputFile) {
         Vehicle first;
@@ -178,6 +183,8 @@ namespace Generator {
             RandPuzzle(outputFile, &first, true);
         } while (!(GameSituation(outputFile).CanBeATarget()));
     }
+
+
 
     void HardestPuzzle(std::string& outputFile) {
 
@@ -204,10 +211,6 @@ namespace Generator {
         std::queue<int> queue;
         queue.push(1);
 
-#if PROMPT
-        std::cout << "Building the graph..." << std::endl;
-#endif
-
         while (queue.size() > 0) {
             int cindex = queue.front();
             Graph::Node node = graph[cindex];
@@ -221,16 +224,17 @@ namespace Generator {
                 }
             }
             queue.pop();
+
+#if PROMPT
+            std::cout << "\x1B[2J\x1B[H";
+            std::cout << "Building the graph..." << std::endl;
+            std::cout << "number of nodes: " << graph.size() << std::endl;
+#endif
         }
 
         int size = graph.size();
         int maxMoves = 0;
         int iSituation = size - 1;
-
-#if PROMPT
-        std::cout << "Number of nodes: " << size << std::endl;
-        std::cout << "Searching the initial position requesting the most car moves" << std::endl;
-#endif
 
         int denom = 10;
         for (int i = size - 1; i >= size - size / denom; --i) {
@@ -245,9 +249,10 @@ namespace Generator {
 
 #if PROMPT
             std::cout << "\x1B[2J\x1B[H";
-            std::cout << "Number of nodes: " << size << std::endl;
+            std::cout << "Graph generated: " << size << " nodes." << std::endl;
             std::cout << "Searching the initial position requesting the most car moves" << std::endl;
-            std::cout << "Loading... " << float(size - i) / float(size / denom) * 100 << "% (" << size - i << "/" << size / denom << ") (current requested moves: " << maxMoves - 1 << ")" << std::endl;
+            std::cout << "Loading... " << float(size - i) / float(size / denom) * 100 << "% (" << size - i 
+                << "/" << size / denom << ") (current requested moves: " << maxMoves - 1 << ")" << std::endl;
 #endif
         }
 

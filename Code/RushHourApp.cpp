@@ -27,7 +27,8 @@ int WINDOW_HEIGHT = 800 ;
 
 const int BOX_SIZE = 64 ;
 
-void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& renderer, const std::vector<Vehicle>& vehicles, const Box& exitPosition, int gridWidth, int gridHeight) {
+void drawGameState(const std::vector<SDL_Texture*>& textures, SDL_Renderer*& renderer, 
+    const std::vector<Vehicle>& vehicles, const Box& exitPosition, int gridWidth, int gridHeight) {
     
     int grid_width_pxl = gridWidth * BOX_SIZE ; 
     int grid_height_pxl = gridHeight * BOX_SIZE ; 
@@ -270,7 +271,8 @@ int main(int argc, char** argv)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) ;
         SDL_RenderDrawRect(renderer, &grille);
 
-        drawGameState(textures, renderer, path[iter].GetVehicles(), initSituation.GetExitPosition(), gridWidth, gridHeight);
+        drawGameState(textures, renderer, path[iter].GetVehicles(), 
+            initSituation.GetExitPosition(), gridWidth, gridHeight);
 
 #if ANIME
         if (anime) {

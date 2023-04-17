@@ -2,7 +2,8 @@
 #include <iostream>
 
 // 0(n)
-GameSituation::GameSituation(const std::string& input_filepath) : m_Mask(0), m_GridWidth(6), m_GridHeight(6), m_CanBeATarget(false) {
+GameSituation::GameSituation(const std::string& input_filepath) 
+    : m_Mask(0), m_GridWidth(6), m_GridHeight(6), m_CanBeATarget(false) {
     ReadFromFile(input_filepath) ;
     UpdateBoxCondition() ; // Theta(n)
     UpdateMovableVehicles() ; // Theta(n)
@@ -57,7 +58,8 @@ void GameSituation::UpdateBoxCondition() {
     for (Vehicle v : m_Vehicles) {
         int l = 0 ;
         while (l < v.Length) {
-            int idx = ((v.Position.Row + (1 - v.IsHorizontal) * l)) * m_GridWidth + (v.Position.Col + v.IsHorizontal * l);
+            int idx = ((v.Position.Row + (1 - v.IsHorizontal) * l)) 
+                * m_GridWidth + (v.Position.Col + v.IsHorizontal * l);
             m_BoxCondition[idx] = false ;
             l++ ;
         }
@@ -69,6 +71,7 @@ void GameSituation::UpdateMovableVehicles() {
     if (!m_MovableVehicles.empty())
         m_MovableVehicles.clear() ;
 
+    m_CanBeATarget = false;
     for (int i = 0; i < m_Vehicles.size(); ++i) {
         Vehicle v = m_Vehicles[i] ;
         int d = v.Length ;
