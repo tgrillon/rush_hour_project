@@ -50,6 +50,70 @@ void InitFile(std::string& outputFile, const Vehicle* vehicle, int gridSize) {
     AddLine(outputFile, vehicle);
 }
 
+void InitPossibilities(std::vector<Vehicle>& possibilities, const Vehicle* first, int gridSize) {
+    for (int h = 0; h < gridSize; ++h) {
+        for (int w = 0; w < gridSize; ++w) {
+            if (h == first->Position.Row && (w == first->Position.Col || w == first->Position.Col + 1))
+                continue;
+
+            for (int l = 2; l <= 3; ++l) {
+                for (int d = 0; d <= 1; ++d) {
+                    if (!d && h + l - 1 >= gridSize)
+                        continue;
+                    if (d && w + l - 1 >= gridSize)
+                        continue;
+                    if (d && h == first->Position.Row)
+                        continue;
+                    Vehicle vehicle;
+                    vehicle.Position = Box(h, w);
+                    vehicle.Length = l;
+                    vehicle.IsHorizontal = d;
+                    possibilities.push_back(vehicle);
+                }
+            }
+        }
+    }
+}
+
+bool ChooseRandomVehicle(const std::vector<bool> boxes, std::vector<bool>& bufferBox, std::vector<Vehicle>& possibilities, Vehicle& vehicle, int gridSize, int& failures) {
+    bool isValid;
+    bool stop = false;
+    do {
+        failures++;
+        if (possibilities.empty()) {
+            stop = true;
+            break;
+        }
+
+        std::random_device rng;
+        std::uniform_int_distribution<int> u(0, possibilities.size() - 1);
+
+        bufferBox = boxes;
+        int key = u(rng);
+        vehicle = possibilities[key];
+        possibilities.erase(possibilities.begin() + key);
+
+        int len = 0;
+        isValid = true;
+        while (len < vehicle.Length) {
+            int idx = ((vehicle.Position.Row + (1 - vehicle.IsHorizontal) * len))
+                * gridSize + (vehicle.Position.Col + vehicle.IsHorizontal * len);
+            if (!bufferBox[idx]) {
+                isValid = false;
+                break;
+            }
+            bufferBox[idx] = false;
+            len++;
+        }
+    } while (!isValid);
+
+    if (stop) {
+        return true;
+    }
+
+    return false;
+}
+
 namespace Generator {
     const int gridSize = 6;
 
@@ -69,31 +133,10 @@ namespace Generator {
         // Initialize the file with grid dimention and the exit position 
         InitFile(outputFile, first, gridSize);
 
-        std::vector<Vehicle> possibilities;
         // all vehicles available 
         // 0(gridSize*gridSize)
-        for (int h = 0; h < gridSize; ++h) {
-            for (int w = 0; w < gridSize; ++w) {
-                if (h == first->Position.Row && (w == first->Position.Col || w == first->Position.Col + 1))
-                    continue;
-
-                for (int l = 2; l <= 3; ++l) {
-                    for (int d = 0; d <= 1; ++d) {
-                        if (!d && h + l - 1 >= gridSize)
-                            continue;
-                        if (d && w + l - 1 >= gridSize)
-                            continue;
-                        if (d && h == first->Position.Row)
-                            continue;
-                        Vehicle vehicle;
-                        vehicle.Position = Box(h, w);
-                        vehicle.Length = l;
-                        vehicle.IsHorizontal = d;
-                        possibilities.push_back(vehicle);
-                    }
-                }
-            }
-        }
+        std::vector<Vehicle> possibilities;
+        InitPossibilities(possibilities, first, gridSize);
 
         std::vector<bool> boxes(gridSize * gridSize, true);
         boxes[first->Position.Row * gridSize + first->Position.Col] = false;
@@ -103,43 +146,12 @@ namespace Generator {
 
         int totalVehicles = gridSize * gridSize / 3;
         int failures = -1;
-        bool stop = false;
         while (count < gridSize * gridSize / 3 && !possibilities.empty() && !boxes.empty()) {
             Vehicle vehicle;
-            int isValid;
             std::vector<bool> bufferBox;
-            do {
-                failures++;
-                if (possibilities.empty()) {
-                    stop = true;
-                    break;
-                }
-
-                std::random_device rng;
-                std::uniform_int_distribution<int> u(0, possibilities.size() - 1);
-
-                bufferBox = boxes;
-                int key = u(rng);
-                vehicle = possibilities[key];
-                possibilities.erase(possibilities.begin() + key);
-
-                int len = 0;
-                isValid = true;
-                while (len < vehicle.Length) {
-                    int idx = ((vehicle.Position.Row + (1 - vehicle.IsHorizontal) * len)) 
-                        * gridSize + (vehicle.Position.Col + vehicle.IsHorizontal * len);
-                    if (!bufferBox[idx]) {
-                        isValid = false;
-                        break;
-                    }
-                    bufferBox[idx] = false;
-                    len++;
-                }
-            } while (!isValid);
-
-            if (stop) {
+            if (ChooseRandomVehicle(boxes, bufferBox, possibilities, vehicle, gridSize, failures)) {
 #if PROMPT
-                std::cout << "Stopped! " << (int)((float)count / (float)totalVehicles * 100) << "% (" 
+                std::cout << "Stopped! " << (int)((float)count / (float)totalVehicles * 100) << "% ("
                     << count << "/" << totalVehicles << ") has failed " << failures << " times" << std::endl;
 #endif
                 break;
@@ -149,7 +161,7 @@ namespace Generator {
             gs_test.AddVehicle(vehicle);
 
             std::vector<Graph::Node> graph;
-            if (!FindPath(gs_test, graph)) {
+            if (!Graph::FindPath(gs_test, graph)) {
                 failures++;
                 continue;
             }
@@ -218,7 +230,7 @@ namespace Generator {
                 GameSituation buffGs = node.Gs.MoveVehicle(i);
                 Graph::Node newNode = Graph::Node(buffGs, cindex);
 
-                if (!AlreadyExists(cindex, newNode, graph)) {
+                if (!Graph::AlreadyExists(cindex, newNode, graph)) {
                     queue.push(graph.size());
                     graph.push_back(newNode);
                 }
@@ -242,7 +254,6 @@ namespace Generator {
 
             int moves = Graph::Path(gs).size();
             if (moves > maxMoves) {
-                //std::cout << i << ": " << graph[i].Id << " for " << graph.size() << " nodes." << std::endl;
                 maxMoves = moves;
                 iSituation = i;
             }
