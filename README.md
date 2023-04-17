@@ -1,19 +1,32 @@
 # Projet Rush Hour
 
+Projet dans le cadre de l'UE LIFAPC - Algorithmique, programmation et complexité de 3e année de licence Informatique à Lyon 1.
+
+Résolution / génération de puzzle Rush Hour en utilisant le parcours de graphe.  
+
 ## Compilation
 
-- Sous linux
+### Sous linux
+
+Installer les librairies SLD:
+`$ sudo apt install libsdl2-2.0-0 libsdl2-image-2.0-0`
 
 Générer les exécutables dans le répertoire `bin/`:
 `$ make`
 
+- Makefile 
+
+`$ make clean` : supprime tous les exécutables et les `.o`.
+`$ make RushHourApp` : générer l'exécutable pour l'affichage graphique.
+`$ make RushHourTest` : générer l'exécutable pour les tests.
+
 Version graphique:
-`$ ./bin/RushHourApp`
+`$ ./bin/RushHourApp [filepath]`
 
 Version sans affichage (pour les tests de fuite de mémoire avec Valgrind):
 `$ ./bin/RushHourTest`
 
-- Sous Windows (Visual Studio 2022):
+### Sous Windows (Visual Studio 2022):
 
 Générer la solution:
 `$ .\premake5.exe vs2022`
@@ -27,7 +40,45 @@ Exécuter le programme (version test, c-à-d pas d'affichage graphique):
 Exécuter le programme (version graphique):
 `$ .\bin\Debug\Rush-hour-sdl.exe` 
 
-------------------------------------------------------------------------
+---------------------------------------------------------------------------
+
+## Répertoires
+
+- `bin` : contient les exécutables générés par `make`
+- `obj` : contient tous les fichiers `.o` 
+- `Code` : contient tous les fichiers `.cpp` et `.h`
+- `data/files` : contient les fichiers permettant de charger les situations de jeu
+- `data/tiles` : contient les textures pour l'affichage sdl
+
+---------------------------------------------------------------------------
+
+## Explication des options 
+
+### Generator.h:
+
+`#define PROMPT` - Afficher (1) / Cacher (0) les informations lors de l'exécution du programme.
+
+`#define TEST` - Fait un test sur le fonctionnement de la fonction HardestPuzzle() en prenant le fichier targetTest.txt en position cible. C'est un cas trouver sur Internet où la position cible qui demande le plus de coups pour résoudre le puzzle nécessite 51 déplacements. Mettre TEST à 1 permet de tester si en prenant la position cible on obtient bien la position initiale recherchée. La position initiale rechechée correspond au fichier test.txt dans data/files.
+
+---------------------------------------------------------------------------
+
+### RushHourApp.cpp:
+
+`#define ANIME` - Autorise l'affichage dynamique (activé / désactivé en appuyant sur la touche A du clavier). La valeur assignée à ANIME correspond aux millisecondes de pause entre chaque situation de jeu.
+
+`#define BASIC` - Applique les textures du fichier data/tiles/basic
+
+`#define HPUZZLE` - Active la génération automatique des puzzles. Si cette option n'est pas active, c'est le fichier puzzle.txt (situation de base du projet) qui sera choisie ou bien le fichier indiquer en argument lors de la compilation. 
+
+---------------------------------------------------------------------------
+
+## Crédit
+
+J'ai utilisé le fichier Timer.h qui n'est pas de moi. Ce fichier vient d'un dépôt github publique: https://github.com/TheCherno/Walnut.git
+
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
 
 Le but de ce projet est d'écrire un programme permettant de trouver une
 solution au jeu *Rush Hour*.
